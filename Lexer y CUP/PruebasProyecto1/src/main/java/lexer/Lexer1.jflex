@@ -1,4 +1,8 @@
 package lexer;
+//import java_cup.runtime.*;
+import java.util.List;
+import java.util.ArrayList;
+import pruebasintacticocompi.pruebasproyecto1.Error;
 
 %%
 
@@ -8,6 +12,19 @@ package lexer;
 %line
 %column
 %type int
+
+%{
+    private List<Error> listaDeErrores = new ArrayList();
+
+    public List<Error> getErrores() {
+        return listaDeErrores;
+    }
+
+    private void agregarError(String lexema) {
+        listaDeErrores.add(new Error(lexema,"Lexico", yyline + 1, yycolumn + 1));
+    }    
+
+%}
 
 //*****Definicion de expresiones regulares*****
 DIGITO = [0-9]
@@ -151,12 +168,6 @@ CAT     = @\[:\^\^:\] | @\[:cat:\]
 
 //******** ERROR LEXICO ********
 
-.                   {
-                        System.out.println(
-                            "ERROR LEXICO -> '" + yytext() + 
-                            "' en linea: " + (yyline + 1) + 
-                            ", columna: " + (yycolumn + 1)
-                        );
-                    }
+.                   {agregarError(yytext()); }
 
 <<EOF>> { return -1; }

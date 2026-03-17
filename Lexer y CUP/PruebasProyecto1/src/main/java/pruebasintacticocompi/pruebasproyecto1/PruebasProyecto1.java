@@ -6,6 +6,7 @@ package pruebasintacticocompi.pruebasproyecto1;
 import java.io.StringReader;
 import lexer.AnalizadorLexicoCF;
 
+
 /**
  *
  * @author xavi
@@ -86,6 +87,11 @@ public class PruebasProyecto1 {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        System.out.println("===Errores Lexicos ===");    
+        for (Error errores : lexer.getErrores() ) {
+            System.out.println("-Lexema: "+errores.getLexema()+" -Tipo: " + errores.getTipo() + " -Fila: " + errores.getLine() + " -Colm: " + errores.getColm());
+        }
+       
     }
 }
 

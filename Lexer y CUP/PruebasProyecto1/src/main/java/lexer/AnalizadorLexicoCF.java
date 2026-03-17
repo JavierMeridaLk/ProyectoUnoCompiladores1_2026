@@ -3,6 +3,10 @@
 // source: Lexer1.jflex
 
 package lexer;
+//import java_cup.runtime.*;
+import java.util.List;
+import java.util.ArrayList;
+import pruebasintacticocompi.pruebasproyecto1.Error;
 
 
 @SuppressWarnings("fallthrough")
@@ -528,6 +532,18 @@ public class AnalizadorLexicoCF {
   @SuppressWarnings("unused")
   private boolean zzEOFDone;
 
+  /* user code: */
+    private List<Error> listaDeErrores = new ArrayList();
+
+    public List<Error> getErrores() {
+        return listaDeErrores;
+    }
+
+    private void agregarError(String lexema) {
+        listaDeErrores.add(new Error(lexema,"Lexico", yyline + 1, yycolumn + 1));
+    }    
+
+
 
   /**
    * Creates a new scanner
@@ -769,7 +785,6 @@ public class AnalizadorLexicoCF {
       message = ZZ_ERROR_MSG[ZZ_UNKNOWN_ERROR];
     }
 
-    throw new Error(message);
   }
 
 
@@ -942,11 +957,7 @@ public class AnalizadorLexicoCF {
       else {
         switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
           case 1:
-            { System.out.println(
-                            "ERROR LEXICO -> '" + yytext() + 
-                            "' en linea: " + (yyline + 1) + 
-                            ", columna: " + (yycolumn + 1)
-                        );
+            { agregarError(yytext());
             }
           // fall through
           case 73: break;
