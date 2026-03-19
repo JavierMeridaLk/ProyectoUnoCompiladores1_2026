@@ -14,17 +14,17 @@ public class sym {
   public static final int DIVISION = 50;
   public static final int MENOR_IGUAL = 56;
   public static final int POKEMON = 46;
-  public static final int PARENTESIS_ABRE = 64;
+  public static final int PARENTESIS_ABRE = 63;
   public static final int COLOR_WHITE = 44;
   public static final int TABLE = 6;
   public static final int COLOR_BLACK = 43;
-  public static final int PARENTESIS_CIERRA = 65;
+  public static final int PARENTESIS_CIERRA = 64;
   public static final int COLOR_HEX = 81;
   public static final int POTENCIA = 51;
-  public static final int EMOJI = 77;
+  public static final int EMOJI = 76;
   public static final int MAYOR = 53;
   public static final int COLOR_PURPLE = 40;
-  public static final int TEXTO = 76;
+  public static final int TEXTO = 75;
   public static final int SANS_SERIF = 32;
   public static final int DROP_QUESTION = 9;
   public static final int DIFERENTE = 58;
@@ -32,17 +32,17 @@ public class sym {
   public static final int DRAW = 45;
   public static final int OPEN_QUESTION = 8;
   public static final int DOUBLE = 36;
-  public static final int CORCHETE_ABRE = 68;
+  public static final int CORCHETE_ABRE = 67;
   public static final int NUMBER_TYPE = 2;
-  public static final int NOT = 62;
+  public static final int NOT = 61;
   public static final int TEXT = 7;
-  public static final int DOS_PUNTOS = 71;
+  public static final int DOS_PUNTOS = 70;
   public static final int WIDTH = 12;
-  public static final int PUNTO_COMA = 72;
+  public static final int PUNTO_COMA = 71;
   public static final int STYLES = 18;
-  public static final int COMA = 70;
+  public static final int COMA = 69;
   public static final int ENTERO = 78;
-  public static final int LLAVE_CIERRA = 67;
+  public static final int LLAVE_CIERRA = 66;
   public static final int MODULO = 52;
   public static final int CURSIVE = 33;
   public static final int MONO = 31;
@@ -51,24 +51,24 @@ public class sym {
   public static final int DECIMAL = 79;
   public static final int DO = 26;
   public static final int FOR = 27;
-  public static final int INTERROGACION_ABIERTA = 63;
+  public static final int INTERROGACION_ABIERTA = 77;
   public static final int ORIENTATION = 16;
   public static final int ELSE = 24;
   public static final int MULTIPLE_QUESTION = 11;
   public static final int MENOR = 54;
   public static final int COLOR_RGB = 82;
-  public static final int LLAVE_ABRE = 66;
+  public static final int LLAVE_ABRE = 65;
   public static final int CORRECT = 22;
   public static final int CONTENT = 20;
   public static final int EOF = 0;
-  public static final int PUNTO = 74;
+  public static final int PUNTO = 72;
   public static final int VERTICAL = 29;
   public static final int SUMA = 47;
   public static final int LINE = 34;
   public static final int LABEL = 19;
   public static final int IN = 28;
-  public static final int COMILLA = 75;
-  public static final int OR = 60;
+  public static final int COMILLA = 74;
+  public static final int OR = 59;
   public static final int error = 1;
   public static final int RESTA = 48;
   public static final int IF = 23;
@@ -79,16 +79,16 @@ public class sym {
   public static final int COLOR_GREEN = 39;
   public static final int RANGO = 73;
   public static final int HEIGHT = 13;
-  public static final int ASIGNACION = 59;
+  public static final int ASIGNACION = 62;
   public static final int COLOR_HSL = 83;
   public static final int COLOR_RED = 37;
   public static final int POINTY = 15;
   public static final int OPTIONS = 21;
   public static final int POINTX = 14;
-  public static final int AND = 61;
+  public static final int AND = 60;
   public static final int COLOR_BLUE = 38;
   public static final int COLOR_YELLOW = 42;
-  public static final int CORCHETE_CIERRA = 69;
+  public static final int CORCHETE_CIERRA = 68;
   public static final int MAYOR_IGUAL = 55;
   public static final int SECTION = 5;
   public static final int STRING_TYPE = 3;
@@ -152,11 +152,10 @@ public class sym {
   "MENOR_IGUAL",
   "IGUAL",
   "DIFERENTE",
-  "ASIGNACION",
   "OR",
   "AND",
   "NOT",
-  "INTERROGACION_ABIERTA",
+  "ASIGNACION",
   "PARENTESIS_ABRE",
   "PARENTESIS_CIERRA",
   "LLAVE_ABRE",
@@ -166,11 +165,12 @@ public class sym {
   "COMA",
   "DOS_PUNTOS",
   "PUNTO_COMA",
-  "RANGO",
   "PUNTO",
+  "RANGO",
   "COMILLA",
   "TEXTO",
   "EMOJI",
+  "INTERROGACION_ABIERTA",
   "ENTERO",
   "DECIMAL",
   "IDENTIFICADOR",
