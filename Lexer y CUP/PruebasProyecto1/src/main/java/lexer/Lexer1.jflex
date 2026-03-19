@@ -27,11 +27,66 @@ import pruebasintacticocompi.pruebasproyecto1.ErroresDeAnalizadores;
     }
 
     private Symbol symbol(int tipo) {
+        String nombre = nombreToken(tipo);
+        String texto = yytext();
+
+        System.out.println("TOKEN -> " + nombre + " | LEXEMA -> '" + texto + "'");
+
         return new Symbol(tipo, yyline + 1, yycolumn + 1);
     }
 
     private Symbol symbol(int tipo, Object valor) {
+        String nombre = nombreToken(tipo);
+        String texto = yytext();
+
+        System.out.println("TOKEN -> " + nombre + " | LEXEMA -> '" + texto + "' | VALOR -> " + valor);
+
         return new Symbol(tipo, yyline + 1, yycolumn + 1, valor);
+    }
+
+    private String nombreToken(int tipo){
+        switch(tipo){
+            case sym.NUMBER_TYPE: return "NUMBER_TYPE";
+            case sym.STRING_TYPE: return "STRING_TYPE";
+            case sym.SPECIAL_TYPE: return "SPECIAL_TYPE";
+
+            case sym.SECTION: return "SECTION";
+            case sym.TABLE: return "TABLE";
+            case sym.TEXT: return "TEXT";
+
+            case sym.OPEN_QUESTION: return "OPEN_QUESTION";
+            case sym.DROP_QUESTION: return "DROP_QUESTION";
+            case sym.SELECT_QUESTION: return "SELECT_QUESTION";
+            case sym.MULTIPLE_QUESTION: return "MULTIPLE_QUESTION";
+
+            case sym.WIDTH: return "WIDTH";
+            case sym.HEIGHT: return "HEIGHT";
+            case sym.POINTX: return "POINTX";
+            case sym.POINTY: return "POINTY";
+
+            case sym.IF: return "IF";
+            case sym.ELSE: return "ELSE";
+            case sym.WHILE: return "WHILE";
+            case sym.DO: return "DO";
+            case sym.FOR: return "FOR";
+
+            case sym.SUMA: return "SUMA";
+            case sym.RESTA: return "RESTA";
+            case sym.MULTIPLICACION: return "MULTIPLICACION";
+            case sym.DIVISION: return "DIVISION";
+
+            case sym.ENTERO: return "ENTERO";
+            case sym.DECIMAL: return "DECIMAL";
+            case sym.IDENTIFICADOR: return "IDENTIFICADOR";
+
+            case sym.COMILLA: return "COMILLA";
+            case sym.TEXTO: return "TEXTO";
+            case sym.EMOJI: return "EMOJI";
+
+            case sym.EOF: return "EOF";
+
+            default: return "TOKEN_" + tipo;
+        }
     }
 %}
 
@@ -200,15 +255,28 @@ EMOJI = @\[:\)+\]
 
 <DENTRO_CADENA> {
 
-{EMOJI} { return symbol(sym.EMOJI, yytext()); }
+    {EMOJI} { return symbol(sym.EMOJI, yytext()); }
 
-[^\"@]+ { return symbol(sym.TEXTO, yytext()); }
+    [^\"@\n]+ { return symbol(sym.TEXTO, yytext()); }
 
-"@"     { return symbol(sym.TEXTO, yytext()); }
+    "@" { return symbol(sym.TEXTO, yytext()); }
 
-\" { yybegin(YYINITIAL); return symbol(sym.COMILLA); }
+    \" { 
+        yybegin(YYINITIAL); 
+        return symbol(sym.COMILLA); 
+    }
 
-. { agregarError(yytext()); }
+    \n {
+        agregarError("Cadena no cerrada");
+        yybegin(YYINITIAL);
+    }
+
+    <<EOF>> {
+        agregarError("Cadena no cerrada");
+        return symbol(sym.EOF);
+    }
+
+    . { agregarError(yytext()); }
 }
 
 //******** EOF ********

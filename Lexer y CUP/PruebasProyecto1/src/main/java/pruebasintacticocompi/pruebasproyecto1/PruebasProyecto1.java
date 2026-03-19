@@ -12,21 +12,16 @@ public class PruebasProyecto1 {
 
         String entrada = """
                          
-                          @@@
-                                 #ZZZZZZ
                          
         /* ================================
            PROGRAMA CORRECTO
         ================================ */
-                          @@@
-                                                          #ZZZZZZ
+                         
         number widthGlobal = 800;
         number heightGlobal = 600;
-                          @@@
-                                                          #ZZZZZZ
+                        
         string titulo = "Formulario @[:star:2:]";
- @@@
-                                 #ZZZZZZ
+
         /* special con comodines */
         special pregunta1 = OPEN_QUESTION [
             width: ?,
@@ -96,7 +91,8 @@ public class PruebasProyecto1 {
         /* ================================
            ❌ ERRORES LÉXICOS
         ================================ */
-
+ @@@
+                                                          #ZZZZZZ                         
        
         
 
