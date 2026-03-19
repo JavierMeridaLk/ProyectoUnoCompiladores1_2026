@@ -1,0 +1,251 @@
+package parser;
+
+import java.util.List;
+import java.util.ArrayList;
+import pruebasintacticocompi.pruebasproyecto1.ErroresDeAnalizadores;
+import java_cup.runtime.*;
+
+parser code {:
+    private List<ErroresDeAnalizadores> erroresSintacticos = new ArrayList<>();
+
+    public List<ErroresDeAnalizadores> getSyntaxErrors(){
+        return this.erroresSintacticos;
+    }
+
+    @Override
+    public void syntax_error(Symbol cur_token) {
+        String lexema = (cur_token.value != null) ? cur_token.value.toString() : "EOF";
+        erroresSintacticos.add(new ErroresDeAnalizadores(lexema, "Sintáctico", cur_token.left, cur_token.right));
+    }
+
+    @Override
+    public void unrecovered_syntax_error(Symbol cur_token) {
+        syntax_error(cur_token);
+    }
+
+    public void report_error(String message, Object info){
+        Symbol s = (Symbol) info;
+        String lexema = (s.value != null) ? s.value.toString() : "EOF";
+        erroresSintacticos.add(new ErroresDeAnalizadores(lexema + " -> " + message, "Sintáctico", s.left, s.right));
+    }
+:};
+
+/********** TERMINALES **********/
+terminal    NUMBER_TYPE, STRING_TYPE, SPECIAL_TYPE, SECTION, 
+            TABLE, TEXT, OPEN_QUESTION, DROP_QUESTION, SELECT_QUESTION, 
+            MULTIPLE_QUESTION, WIDTH, HEIGHT, POINTX, POINTY, ORIENTATION,
+            ELEMENTS, STYLES, LABEL, CONTENT, OPTIONS, CORRECT, 
+            IF, ELSE, WHILE, DO, FOR, IN, VERTICAL, HORIZONTAL,
+            MONO, SANS_SERIF, CURSIVE, LINE, DOTTED, DOUBLE, 
+            COLOR_RED, COLOR_BLUE, COLOR_GREEN, COLOR_PURPLE, 
+            COLOR_SKY, COLOR_YELLOW, COLOR_BLACK, COLOR_WHITE, 
+            DRAW, POKEMON, SUMA, RESTA, MULTIPLICACION, DIVISION, 
+            POTENCIA, MODULO, MAYOR, MENOR, MAYOR_IGUAL, MENOR_IGUAL, 
+            IGUAL, DIFERENTE, ASIGNACION, OR, AND, NOT, 
+            INTERROGACION_ABIERTA, PARENTESIS_ABRE, 
+            PARENTESIS_CIERRA, LLAVE_ABRE, LLAVE_CIERRA, 
+            CORCHETE_ABRE, CORCHETE_CIERRA, COMA, DOS_PUNTOS, 
+            PUNTO_COMA, RANGO, PUNTO, COMILLA, TEXTO, EMOJI;
+
+terminal Integer ENTERO;
+terminal Double DECIMAL;
+terminal String IDENTIFICADOR, COLOR_HEX, COLOR_RGB, COLOR_HSL;
+
+/********** NO TERMINALES **********/
+non terminal programa, lista_global, global,
+            declaracion, asignacion, tipo,
+            expresion, expr_logica, expr_rel, expr_arit,
+            termino, factor,
+            seccion, lista_atributos, atributo, contenido_atributo, valor,
+            lista_elementos, elemento,
+            text_element,
+            pregunta, open_q, drop_q, select_q, multiple_q,
+            lista_sentencias, sentencia,
+            condicion, else_part,
+            ciclo, while_loop, do_while, for_loop,
+            color;
+
+/******** PRECEDENCIA ********/
+precedence left MAYOR, MAYOR_IGUAL, MENOR, MENOR_IGUAL, IGUAL, DIFERENTE;
+precedence left OR, AND;
+precedence right NOT;
+precedence left SUMA, RESTA;
+precedence left MULTIPLICACION, DIVISION;
+precedence right POTENCIA;
+precedence left MODULO;
+
+/******** INICIO ********/
+start with programa;
+
+/******** GRAMATICA ********/
+programa ::= lista_global ;
+
+lista_global ::= lista_global global
+               | global
+               ;
+
+/******** GLOBAL ********/
+global ::= declaracion PUNTO_COMA
+         | asignacion PUNTO_COMA
+         | seccion
+         | condicion
+         | ciclo
+         ;
+
+/******** VARIABLES ********/
+tipo ::= NUMBER_TYPE
+       | STRING_TYPE
+       | SPECIAL_TYPE
+       | MONO
+       | SANS_SERIF
+       | CURSIVE
+       ;
+
+declaracion ::= tipo IDENTIFICADOR
+              | tipo IDENTIFICADOR ASIGNACION expresion
+              ;
+
+asignacion ::= IDENTIFICADOR ASIGNACION expresion ;
+
+/******** EXPRESIONES ********/
+expresion ::= expr_logica ;
+
+expr_logica ::= expr_logica OR expr_logica
+              | expr_logica AND expr_logica
+              | NOT expr_logica
+              | expr_rel
+              ;
+
+expr_rel ::= expr_arit MAYOR expr_arit
+           | expr_arit MENOR expr_arit
+           | expr_arit MAYOR_IGUAL expr_arit
+           | expr_arit MENOR_IGUAL expr_arit
+           | expr_arit IGUAL expr_arit
+           | expr_arit DIFERENTE expr_arit
+           | expr_arit
+           ;
+
+expr_arit ::= expr_arit SUMA termino
+            | expr_arit RESTA termino
+            | termino
+            ;
+
+termino ::= termino MULTIPLICACION factor
+          | termino DIVISION factor
+          | termino MODULO factor
+          | factor
+          ;
+
+factor ::= factor POTENCIA factor
+         | ENTERO
+         | DECIMAL
+         | IDENTIFICADOR
+         | PARENTESIS_ABRE expresion PARENTESIS_CIERRA
+         | factor PUNTO IDENTIFICADOR
+         ;
+
+/******** SECCIONES ********/
+seccion ::= SECTION CORCHETE_ABRE lista_atributos CORCHETE_CIERRA ;
+
+lista_atributos ::= lista_atributos atributo
+                  | atributo
+                  ;
+
+/******** ATRIBUTOS ********/
+atributo ::= IDENTIFICADOR DOS_PUNTOS contenido_atributo
+           | DRAW DOS_PUNTOS contenido_atributo
+           ;
+
+contenido_atributo ::= valor PUNTO_COMA
+                     | LLAVE_ABRE lista_elementos LLAVE_CIERRA
+                     ;
+
+/******** VALORES ********/
+valor ::= ENTERO
+        | color
+        | VERTICAL
+        | HORIZONTAL
+        ;
+
+/******** ELEMENTOS ********/
+lista_elementos ::= lista_elementos COMA elemento
+                  | elemento
+                  ;
+
+elemento ::= text_element
+           | pregunta
+           | seccion
+           ;
+
+/******** TEXT ********/
+text_element ::= TEXT CORCHETE_ABRE IDENTIFICADOR DOS_PUNTOS CORCHETE_CIERRA ;
+
+/******** PREGUNTAS ********/
+pregunta ::= open_q
+           | drop_q
+           | select_q
+           | multiple_q
+           ;
+
+open_q ::= OPEN_QUESTION CORCHETE_ABRE IDENTIFICADOR DOS_PUNTOS CORCHETE_CIERRA ;
+drop_q ::= DROP_QUESTION CORCHETE_ABRE IDENTIFICADOR DOS_PUNTOS CORCHETE_CIERRA ;
+select_q ::= SELECT_QUESTION CORCHETE_ABRE CORCHETE_CIERRA ;
+multiple_q ::= MULTIPLE_QUESTION CORCHETE_ABRE CORCHETE_CIERRA ;
+
+/******** SENTENCIAS ********/
+lista_sentencias ::= lista_sentencias sentencia
+                   | sentencia
+                   ;
+
+sentencia ::= ciclo
+            | condicion
+            | seccion
+            ;
+
+/******** IF ********/
+condicion ::= IF PARENTESIS_ABRE expresion PARENTESIS_CIERRA
+              LLAVE_ABRE lista_sentencias LLAVE_CIERRA
+              else_part
+              ;
+
+else_part ::= ELSE condicion
+            | ELSE LLAVE_ABRE lista_sentencias LLAVE_CIERRA
+            | /* vacío */
+            ;
+
+/******** CICLOS ********/
+ciclo ::= while_loop
+        | do_while
+        | for_loop
+        ;
+
+while_loop ::= WHILE PARENTESIS_ABRE expresion PARENTESIS_CIERRA
+               LLAVE_ABRE lista_sentencias LLAVE_CIERRA
+               ;
+
+do_while ::= DO LLAVE_ABRE lista_sentencias LLAVE_CIERRA
+             WHILE PARENTESIS_ABRE expresion PARENTESIS_CIERRA
+             ;
+
+for_loop ::= FOR PARENTESIS_ABRE asignacion PUNTO_COMA expresion PUNTO_COMA asignacion PARENTESIS_CIERRA
+             LLAVE_ABRE lista_sentencias LLAVE_CIERRA
+           | FOR PARENTESIS_ABRE IDENTIFICADOR IN ENTERO RANGO ENTERO PARENTESIS_CIERRA
+             LLAVE_ABRE lista_sentencias LLAVE_CIERRA
+           ;
+
+/******** COLOR ********/
+color ::= COLOR_RED
+        | COLOR_BLUE
+        | COLOR_GREEN
+        | COLOR_PURPLE
+        | COLOR_SKY
+        | COLOR_YELLOW
+        | COLOR_BLACK
+        | COLOR_WHITE
+        | COLOR_HEX
+        | COLOR_RGB
+        | COLOR_HSL
+        | LINE
+        | DOTTED
+        | DOUBLE
+        ;

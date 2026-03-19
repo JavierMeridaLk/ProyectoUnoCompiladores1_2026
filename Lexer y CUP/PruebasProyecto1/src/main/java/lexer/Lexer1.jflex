@@ -1,39 +1,51 @@
 package lexer;
-//import java_cup.runtime.*;
+
+import java_cup.runtime.Symbol;
 import java.util.List;
+import parser.sym;
 import java.util.ArrayList;
-import pruebasintacticocompi.pruebasproyecto1.Error;
+import pruebasintacticocompi.pruebasproyecto1.ErroresDeAnalizadores;
 
 %%
-
 %public
 %unicode
 %class AnalizadorLexicoCF
+%cup
 %line
 %column
-%type int
+%state DENTRO_CADENA
 
 %{
-    private List<Error> listaDeErrores = new ArrayList();
+    private List<ErroresDeAnalizadores> listaDeErrores = new ArrayList<>();
 
-    public List<Error> getErrores() {
+    public List<ErroresDeAnalizadores> getErrores() {
         return listaDeErrores;
     }
 
     private void agregarError(String lexema) {
-        listaDeErrores.add(new Error(lexema,"Lexico", yyline + 1, yycolumn + 1));
-    }    
+        listaDeErrores.add(new ErroresDeAnalizadores(lexema,"Lexico", yyline + 1, yycolumn + 1));
+    }
 
+    private Symbol symbol(int tipo) {
+        return new Symbol(tipo, yyline + 1, yycolumn + 1);
+    }
+
+    private Symbol symbol(int tipo, Object valor) {
+        return new Symbol(tipo, yyline + 1, yycolumn + 1, valor);
+    }
 %}
 
-//*****Definicion de expresiones regulares*****
+//***** EXPRESIONES REGULARES *****
 DIGITO = [0-9]
 LETRA = [a-zA-Z]
 IDENTIFICADOR = {LETRA}({LETRA}|{DIGITO}|_)*
 ESPACIOS = [ \t\r\n]+
+
 ENTERO = {DIGITO}+
 DECIMAL = {DIGITO}+"."{DIGITO}+
-STRING = \"([^\"\\]|\\.)*\"
+
+// CADENA
+CADENA = \"
 
 // Comentarios
 COMENTARIO_LINEA = "$".*
@@ -45,129 +57,159 @@ RGB = \({ENTERO},{ENTERO},{ENTERO}\)
 HSL = "<"({ENTERO}","{ENTERO}","{ENTERO})">"
 
 // Emojis
-SMILE   = @\[:\)+\] | @\[:smile:\]
-SAD     = @\[:\(+\] | @\[:sad:\]
-SERIOUS = @\[:\|+\] | @\[:serious:\]
-HEART   = @\[<+3+\] | @\[:heart:\]
-STAR    = @\[:star:\] 
-        | @\[:star:{ENTERO}:\] 
-        | @\[:star-{ENTERO}:\]
-CAT     = @\[:\^\^:\] | @\[:cat:\]
+EMOJI = @\[:\)+\] 
+      | @\[:smile:\]
+      | @\[:\(+\]
+      | @\[:sad:\]
+      | @\[:\|+\]
+      | @\[:serious:\]
+      | @\[<+3+\]
+      | @\[:heart:\]
+      | @\[:star:\] 
+      | @\[:star:{ENTERO}:\] 
+      | @\[:star-{ENTERO}:\]
+      | @\[:\^\^:\] 
+      | @\[:cat:\]
 
 %%
 
+
+// Estado inciaña
+
+<YYINITIAL> {
+
 //******** PALABRAS RESERVADAS ********
+"number"            { return symbol(sym.NUMBER_TYPE); }
+"string"            { return symbol(sym.STRING_TYPE); }
+"special"           { return symbol(sym.SPECIAL_TYPE); }
 
-// Tipos
-"number"            { System.out.println("TOKEN: NUMBER_TYPE"); }
-"string"            { System.out.println("TOKEN: STRING_TYPE"); }
-"special"           { System.out.println("TOKEN: SPECIAL_TYPE"); }
+"SECTION"           { return symbol(sym.SECTION); }
+"TABLE"             { return symbol(sym.TABLE); }
+"TEXT"              { return symbol(sym.TEXT); }
 
-// Estructuras
-"SECTION"           { System.out.println("TOKEN: SECTION"); }
-"TEXT"              { System.out.println("TOKEN: TEXT"); }
+"OPEN_QUESTION"     { return symbol(sym.OPEN_QUESTION); }
+"DROP_QUESTION"     { return symbol(sym.DROP_QUESTION); }
+"SELECT_QUESTION"   { return symbol(sym.SELECT_QUESTION); }
+"MULTIPLE_QUESTION" { return symbol(sym.MULTIPLE_QUESTION); }
 
-// Preguntas
-"OPEN_QUESTION"     { System.out.println("TOKEN: OPEN_QUESTION"); }
-"DROP_QUESTION"     { System.out.println("TOKEN: DROP_QUESTION"); }
-"SELECT_QUESTION"   { System.out.println("TOKEN: SELECT_QUESTION"); }
-"MULTIPLE_QUESTION" { System.out.println("TOKEN: MULTIPLE_QUESTION"); }
+// atributos
+"width"             { return symbol(sym.WIDTH); }
+"height"            { return symbol(sym.HEIGHT); }
+"pointX"            { return symbol(sym.POINTX); }
+"pointY"            { return symbol(sym.POINTY); }
+"orientation"       { return symbol(sym.ORIENTATION); }
+"elements"          { return symbol(sym.ELEMENTS); }
+"styles"            { return symbol(sym.STYLES); }
+"label"             { return symbol(sym.LABEL); }
+"content"           { return symbol(sym.CONTENT); }
+"options"           { return symbol(sym.OPTIONS); }
+"correct"           { return symbol(sym.CORRECT); }
 
-// Control
-"IF"                { System.out.println("TOKEN: IF"); }
-"ELSE"              { System.out.println("TOKEN: ELSE"); }
-"WHILE"             { System.out.println("TOKEN: WHILE"); }
-"DO"                { System.out.println("TOKEN: DO"); }
-"FOR"               { System.out.println("TOKEN: FOR"); }
-"in"                { System.out.println("TOKEN: IN"); }
+// control
+"IF"                { return symbol(sym.IF); }
+"ELSE"              { return symbol(sym.ELSE); }
+"WHILE"             { return symbol(sym.WHILE); }
+"DO"                { return symbol(sym.DO); }
+"FOR"               { return symbol(sym.FOR); }
+"in"                { return symbol(sym.IN); }
 
-// Orientación
-"VERTICAL"          { System.out.println("TOKEN: VERTICAL"); }
-"HORIZONTAL"        { System.out.println("TOKEN: HORIZONTAL"); }
+// estilos
+"VERTICAL"          { return symbol(sym.VERTICAL); }
+"HORIZONTAL"        { return symbol(sym.HORIZONTAL); }
 
-// Estilos
-"MONO"              { System.out.println("TOKEN: MONO"); }
-"SANS_SERIF"        { System.out.println("TOKEN: SANS_SERIF"); }
-"CURSIVE"           { System.out.println("TOKEN: CURSIVE"); }
+"MONO"              { return symbol(sym.MONO); }
+"SANS_SERIF"        { return symbol(sym.SANS_SERIF); }
+"CURSIVE"           { return symbol(sym.CURSIVE); }
 
-// Bordes
-"LINE"              { System.out.println("TOKEN: LINE"); }
-"DOTTED"            { System.out.println("TOKEN: DOTTED"); }
-"DOUBLE"            { System.out.println("TOKEN: DOUBLE"); }
+"LINE"              { return symbol(sym.LINE); }
+"DOTTED"            { return symbol(sym.DOTTED); }
+"DOUBLE"            { return symbol(sym.DOUBLE); }
 
-// Colores base
-"RED"               { System.out.println("TOKEN: COLOR_RED"); }
-"BLUE"              { System.out.println("TOKEN: COLOR_BLUE"); }
-"GREEN"             { System.out.println("TOKEN: COLOR_GREEN"); }
-"PURPLE"            { System.out.println("TOKEN: COLOR_PURPLE"); }
-"SKY"               { System.out.println("TOKEN: COLOR_SKY"); }
-"YELLOW"            { System.out.println("TOKEN: COLOR_YELLOW"); }
-"BLACK"             { System.out.println("TOKEN: COLOR_BLACK"); }
-"WHITE"             { System.out.println("TOKEN: COLOR_WHITE"); }
+// colores base
+"RED"               { return symbol(sym.COLOR_RED); }
+"BLUE"              { return symbol(sym.COLOR_BLUE); }
+"GREEN"             { return symbol(sym.COLOR_GREEN); }
+"PURPLE"            { return symbol(sym.COLOR_PURPLE); }
+"SKY"               { return symbol(sym.COLOR_SKY); }
+"YELLOW"            { return symbol(sym.COLOR_YELLOW); }
+"BLACK"             { return symbol(sym.COLOR_BLACK); }
+"WHITE"             { return symbol(sym.COLOR_WHITE); }
+
+// funciones
+"draw"              { return symbol(sym.DRAW); }
+"who_is_that_pokemon" { return symbol(sym.POKEMON); }
 
 //******** OPERADORES ********
+"+"   { return symbol(sym.SUMA); }
+"-"   { return symbol(sym.RESTA); }
+"*"   { return symbol(sym.MULTIPLICACION); }
+"/"   { return symbol(sym.DIVISION); }
+"^"   { return symbol(sym.POTENCIA); }
+"%"   { return symbol(sym.MODULO); }
 
-// Aritméticos
-"+"                 { System.out.println("TOKEN: SUMA"); }
-"-"                 { System.out.println("TOKEN: RESTA"); }
-"*"                 { System.out.println("TOKEN: MULTIPLICACION"); }
-"/"                 { System.out.println("TOKEN: DIVISION"); }
-"^"                 { System.out.println("TOKEN: POTENCIA"); }
-"%"                 { System.out.println("TOKEN: MODULO"); }
+">="  { return symbol(sym.MAYOR_IGUAL); }
+"<="  { return symbol(sym.MENOR_IGUAL); }
+">"   { return symbol(sym.MAYOR); }
+"<"   { return symbol(sym.MENOR); }
+"=="  { return symbol(sym.IGUAL); }
+"!!"  { return symbol(sym.DIFERENTE); }
+"="   { return symbol(sym.ASIGNACION); }
 
-// Comparación
-">="                { System.out.println("TOKEN: MAYOR_IGUAL"); }
-"<="                { System.out.println("TOKEN: MENOR_IGUAL"); }
-">"                 { System.out.println("TOKEN: MAYOR"); }
-"<"                 { System.out.println("TOKEN: MENOR"); }
-"=="                { System.out.println("TOKEN: IGUAL"); }
-"!!"                { System.out.println("TOKEN: DIFERENTE"); }
-"="                { System.out.println("TOKEN: ASIGNACION"); }
-
-// Lógicos
-"||"                { System.out.println("TOKEN: OR"); }
-"&&"                { System.out.println("TOKEN: AND"); }
-"~"                 { System.out.println("TOKEN: NOT"); }
+"||"  { return symbol(sym.OR); }
+"&&"  { return symbol(sym.AND); }
+"~"   { return symbol(sym.NOT); }
 
 //******** SIGNOS ********
-"("                 { System.out.println("TOKEN: ("); }
-")"                 { System.out.println("TOKEN: )"); }
-"{"                 { System.out.println("TOKEN: {"); }
-"}"                 { System.out.println("TOKEN: }"); }
-"["                 { System.out.println("TOKEN: ["); }
-"]"                 { System.out.println("TOKEN: ]"); }
-","                 { System.out.println("TOKEN: COMA"); }
-":"                 { System.out.println("TOKEN: DOS_PUNTOS"); }
-";"                 { System.out.println("TOKEN: PUNTO_COMA"); }
-".."                { System.out.println("TOKEN: RANGO"); }
+"?"   { return symbol(sym.INTERROGACION_ABIERTA); }
+"("   { return symbol(sym.PARENTESIS_ABRE); }
+")"   { return symbol(sym.PARENTESIS_CIERRA); }
+"{"   { return symbol(sym.LLAVE_ABRE); }
+"}"   { return symbol(sym.LLAVE_CIERRA); }
+"["   { return symbol(sym.CORCHETE_ABRE); }
+"]"   { return symbol(sym.CORCHETE_CIERRA); }
+","   { return symbol(sym.COMA); }
+":"   { return symbol(sym.DOS_PUNTOS); }
+";"   { return symbol(sym.PUNTO_COMA); }
+".."  { return symbol(sym.RANGO); }
+"."   { return symbol(sym.PUNTO); }
+
+//******** CADENAS ********
+\" { yybegin(DENTRO_CADENA); return symbol(sym.COMILLA); }
 
 //******** VALORES ********
+{HEX}     { return symbol(sym.COLOR_HEX, yytext()); }
+{RGB}     { return symbol(sym.COLOR_RGB, yytext()); }
+{HSL}     { return symbol(sym.COLOR_HSL, yytext()); }
 
-{HEX}               { System.out.println("TOKEN: COLOR_HEX -> " + yytext()); }
-{RGB}               { System.out.println("TOKEN: COLOR_RGB -> " + yytext()); }
-{HSL}               { System.out.println("TOKEN: COLOR_HSL -> " + yytext()); }
+{DECIMAL} { return symbol(sym.DECIMAL, Double.parseDouble(yytext())); }
+{ENTERO}  { return symbol(sym.ENTERO, Integer.parseInt(yytext())); }
 
-{STRING}            { System.out.println("TOKEN: STRING -> " + yytext()); }
-{DECIMAL}           { System.out.println("TOKEN: DECIMAL -> " + yytext()); }
-{ENTERO}            { System.out.println("TOKEN: ENTERO -> " + yytext()); }
-
-{SMILE}             { System.out.println("EMOJI: 😊"); }
-{SAD}               { System.out.println("EMOJI: 😢"); }
-{SERIOUS}           { System.out.println("EMOJI: 😐"); }
-{HEART}             { System.out.println("EMOJI: ❤️"); }
-{STAR}              { System.out.println("EMOJI: ⭐"); }
-{CAT}               { System.out.println("EMOJI: 🐱"); }
-
-{IDENTIFICADOR}     { System.out.println("TOKEN: IDENTIFICADOR -> " + yytext()); }
+//******** IDENTIFICADOR ********
+{IDENTIFICADOR} { return symbol(sym.IDENTIFICADOR, yytext()); }
 
 //******** IGNORADOS ********
+{ESPACIOS}          { }
+{COMENTARIO_LINEA}  { }
+{COMENTARIO_BLOQUE} { }
 
-{COMENTARIO_LINEA}  { /* ignorar */ }
-{COMENTARIO_BLOQUE} { /* ignorar */ }
-{ESPACIOS}          { /* ignorar */ }
+//******** ERROR ********
+. { agregarError(yytext()); }
+}
 
-//******** ERROR LEXICO ********
+// Estado de cameda
 
-.                   {agregarError(yytext()); }
+<DENTRO_CADENA> {
 
-<<EOF>> { return -1; }
+{EMOJI} { return symbol(sym.EMOJI, yytext()); }
+
+[^\"@]+ { return symbol(sym.TEXTO, yytext()); }
+
+"@"     { return symbol(sym.TEXTO, yytext()); }
+
+\" { yybegin(YYINITIAL); return symbol(sym.COMILLA); }
+
+. { agregarError(yytext()); }
+}
+
+//******** EOF ********
+<<EOF>> { return symbol(sym.EOF); }

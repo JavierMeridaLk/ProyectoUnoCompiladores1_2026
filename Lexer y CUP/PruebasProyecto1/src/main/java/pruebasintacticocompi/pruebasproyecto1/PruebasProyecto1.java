@@ -1,97 +1,88 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- */
-
 package pruebasintacticocompi.pruebasproyecto1;
+
 import java.io.StringReader;
+import java_cup.runtime.Scanner;
 import lexer.AnalizadorLexicoCF;
+import parser.parser;   // 👈 IMPORTANTE
+import parser.sym;
 
-
-/**
- *
- * @author xavi
- */
 public class PruebasProyecto1 {
 
     public static void main(String[] args) {
-        
+
         String entrada = """
-            SECTION {
-                         @[<<<<<<<<<<33333333333333333]
-                number edad = 25
-                string nombre = "Javier 😊"
-                special code = @[:smile:]
-            
-                TEXT "Bienvenido al sistema @[:)]"
-                
+            SECTION [
+                nombre: "Formulario";
+                edad: 25;
 
-                color1 = #FFAACC
-                color2 = (255,128,64)
-                color3 = <120,50,50>
-            
-
-                @[:)]
-                @[:((]
-                @[:||||]
-                @[<3]
-                @[<<333]
-                @[:star:]
-                @[:star:5:]
-                @[:star-10:]
-                @[:cat:]
-            
-
-                resultado = 10 + 20 * 3 / 2 ^ 2 % 5
-            
-
-                IF edad >= 18 {
-                    TEXT "Mayor de edad"
-                } ELSE {
-                    TEXT "Menor de edad"
+                DRAW: {
+                    TEXT [titulo: "Bienvenido 😊"],
+                    OPEN_QUESTION [q1: "¿Cómo te llamas?"],
+                    SELECT_QUESTION [],
+                    MULTIPLE_QUESTION []
                 }
-            
+            ]
 
-                FOR i in 1 .. 5 {
-                    TEXT "Iteración"
-                }
+            number x = 10;
+            string nombre = "Javier";
             
-                WHILE edad > 0 {
-                    edad = edad - 1
-                }
-            
+            x = 10 + 20 * 3;
 
-            
-                @              
-                @[:)           
-                @[<3abc]       
-                @[:star:]abc   
-                123.           
-                .45            
-                #ZZZZZZ        
-                (256,300,999)  
-                <a,b,c>        
-                "cadena sin cerrar
-                $ comentario mal cerrado /*
-            
-                ???           
+            IF (x > 5) {
+                SECTION [
+                    mensaje: "Mayor";
+                ]
+            } ELSE {
+                SECTION [
+                    mensaje: "Menor";
+                ]
             }
+
+            FOR (i = 0; i < 5; i = i + 1) {
+                SECTION [
+                    iteracion: "ok";
+                ]
+            }
+
+            // ❌ ERRORES LÉXICOS
+            @@@
+                         _
+                         
+            #ZZZZZZ
+            "cadena sin cerrar
+                         
+            
+            // ❌ ERRORES SINTÁCTICOS
+            SECTION [
+                nombre "Falta dos puntos"
+                edad: ;
+            ]
         """;
-
-        AnalizadorLexicoCF lexer = new AnalizadorLexicoCF(new StringReader(entrada));
-
+        
+        StringReader reader = new StringReader(entrada);
+        AnalizadorLexicoCF lexer = new AnalizadorLexicoCF(reader);
         try {
-            while (lexer.yylex() != -1) {
-                // No hacemos nada aquí porque el lexer ya imprime
+            while (lexer.next_token().sym != sym.EOF) {
+                // solo consumir tokens
             }
-            System.out.println("=== FIN DEL ANALISIS ===");
         } catch (Exception e) {
             e.printStackTrace();
-        }
-        System.out.println("===Errores Lexicos ===");    
-        for (Error errores : lexer.getErrores() ) {
-            System.out.println("-Lexema: "+errores.getLexema()+" -Tipo: " + errores.getTipo() + " -Fila: " + errores.getLine() + " -Colm: " + errores.getColm());
-        }
+}
+        
+
        
+            System.out.println("=== ERRORES LEXICOS ===");
+            for (ErroresDeAnalizadores err : lexer.getErrores()) {
+                System.out.println(
+                    "- Lexema: " + err.getLexema() +
+                    " | Tipo: " + err.getTipo() +
+                    " | Fila: " + err.getLine() +
+                    " | Col: " + err.getColm()
+                );
+            }
+
+   
+
+
     }
 }
-
