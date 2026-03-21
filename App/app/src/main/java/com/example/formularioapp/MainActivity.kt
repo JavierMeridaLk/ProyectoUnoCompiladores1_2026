@@ -1,47 +1,49 @@
 package com.example.formularioapp
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.formularioapp.ui.theme.FormularioAppTheme
+import androidx.appcompat.app.AppCompatActivity
+import android.text.Editable
+import android.text.TextWatcher
+import android.widget.EditText
+import android.widget.TextView
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
+
+    private lateinit var editor: EditText
+    private lateinit var lineNumbers: TextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            FormularioAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
-        }
+        setContentView(R.layout.activity_main)
+
+        editor = findViewById(R.id.editor)
+        lineNumbers = findViewById(R.id.lineNumbers)
+
+        setupEditor()
     }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+    private fun setupEditor() {
+        editor.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                updateLineNumbers()
+            }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    FormularioAppTheme {
-        Greeting("Android")
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+
+        updateLineNumbers()
+    }
+
+    private fun updateLineNumbers() {
+        val text = editor.text.toString()
+        val lines = if (text.isEmpty()) 1 else text.split("\n").size
+
+        val numbers = StringBuilder()
+        for (i in 1..lines) {
+            numbers.append(i).append("\n")
+        }
+
+        lineNumbers.text = numbers.toString()
     }
 }

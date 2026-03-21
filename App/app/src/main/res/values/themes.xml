@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <style name="Theme.FormularioApp" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
 
-    <style name="Theme.FormularioApp" parent="android:Theme.Material.Light.NoActionBar" />
+        <item name="colorPrimary">#4A90E2</item>
+        <item name="colorSecondary">#6C63FF</item>
+        <item name="android:statusBarColor">#4A90E2</item>
+
+    </style>
 </resources>
