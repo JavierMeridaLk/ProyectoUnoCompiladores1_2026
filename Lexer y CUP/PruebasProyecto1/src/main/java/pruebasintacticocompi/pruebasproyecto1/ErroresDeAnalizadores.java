@@ -12,14 +12,24 @@ public class ErroresDeAnalizadores {
     
     private String lexema;
     private String tipo;
+    private String lenguaje;
     private int line;
     private int colm;
 
-    public ErroresDeAnalizadores(String lexema, String tipo, int line, int colm) {
+    public ErroresDeAnalizadores(String lexema, String tipo, String lenguaje, int line, int colm) {
         this.lexema = lexema;
         this.tipo = tipo;
+        this.lenguaje = lenguaje;
         this.line = line;
         this.colm = colm;
+    }
+
+    public String getLenguaje() {
+        return lenguaje;
+    }
+
+    public void setLenguaje(String lenguaje) {
+        this.lenguaje = lenguaje;
     }
 
     public String getLexema() {

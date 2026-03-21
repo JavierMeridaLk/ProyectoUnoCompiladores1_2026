@@ -631,7 +631,7 @@ public class AnalizadorLexicoCF implements java_cup.runtime.Scanner {
     }
 
     private void agregarError(String lexema) {
-        listaDeErrores.add(new ErroresDeAnalizadores(lexema,"Lexico", yyline + 1, yycolumn + 1));
+        listaDeErrores.add(new ErroresDeAnalizadores(lexema,"Lexico", "Creación de Formulario", yyline + 1, yycolumn + 1));
     }
 
     private Symbol symbol(int tipo) {

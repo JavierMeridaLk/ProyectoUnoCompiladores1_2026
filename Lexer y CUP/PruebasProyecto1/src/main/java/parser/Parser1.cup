@@ -26,6 +26,7 @@ parser code {:
         errores.add(new ErroresDeAnalizadores(
             lex + " -> se esperaba: " + esperado.toString(),
             "Sintáctico",
+            "Creación de Formulario",
             s.left,
             s.right
         ));
