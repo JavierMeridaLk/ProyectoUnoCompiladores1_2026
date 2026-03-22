@@ -94,6 +94,20 @@
             android:textSize="14sp"
             android:layout_marginBottom="6dp"/>
 
+        <!-- Selector de colores -->
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnColorPicker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Seleccionar color"
+            android:textAllCaps="false"
+            android:textSize="12sp"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="8dp"
+            app:cornerRadius="12dp"
+            app:backgroundTint="#9B59B6"/>
+
         <!-- SCROLL -->
         <ScrollView
             android:id="@+id/scrollEditor"

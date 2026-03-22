@@ -59,4 +59,5 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("com.google.android.material:material:1.11.0")
+    implementation("com.github.skydoves:colorpickerview:2.2.4")
 }
