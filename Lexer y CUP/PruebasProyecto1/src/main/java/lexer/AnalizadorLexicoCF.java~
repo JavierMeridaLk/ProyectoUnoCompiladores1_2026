@@ -631,7 +631,15 @@ public class AnalizadorLexicoCF implements java_cup.runtime.Scanner {
     }
 
     private void agregarError(String lexema) {
-        listaDeErrores.add(new ErroresDeAnalizadores(lexema,"Lexico", "Creación de Formulario", yyline + 1, yycolumn + 1));
+
+        listaDeErrores.add(new ErroresDeAnalizadores(
+            lexema,
+            "Léxico",
+            "Formulario",
+            "Símbolo no reconocido en el lenguaje",
+            yyline + 1,
+            yycolumn + 1
+        ));
     }
 
     private Symbol symbol(int tipo) {

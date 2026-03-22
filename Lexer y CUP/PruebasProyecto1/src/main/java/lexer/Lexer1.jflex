@@ -1,10 +1,10 @@
-package lexer;
+package com.example.formularioapp.backen.java.lexer;
 
 import java_cup.runtime.Symbol;
 import java.util.List;
 import parser.sym;
 import java.util.ArrayList;
-import pruebasintacticocompi.pruebasproyecto1.ErroresDeAnalizadores;
+import com.example.formularioapp.backen.java.ErroresDeAnalizadores; 
 
 %%
 %public
@@ -23,7 +23,15 @@ import pruebasintacticocompi.pruebasproyecto1.ErroresDeAnalizadores;
     }
 
     private void agregarError(String lexema) {
-        listaDeErrores.add(new ErroresDeAnalizadores(lexema,"Lexico", "Creación de Formulario", yyline + 1, yycolumn + 1));
+
+        listaDeErrores.add(new ErroresDeAnalizadores(
+            lexema,
+            "Léxico",
+            "Formulario",
+            "Símbolo no reconocido en el lenguaje",
+            yyline + 1,
+            yycolumn + 1
+        ));
     }
 
     private Symbol symbol(int tipo) {

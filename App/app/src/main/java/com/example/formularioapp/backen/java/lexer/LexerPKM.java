@@ -7,7 +7,9 @@ package com.example.formularioapp.backen.java.lexer;
 import java_cup.runtime.*;
 import java.util.List;
 import java.util.ArrayList;
-import parser.symPKM;
+
+import com.example.formularioapp.backen.java.parser.sym;
+import com.example.formularioapp.backen.java.parser.symPKM;
 import com.example.formularioapp.backen.java.ErroresDeAnalizadores; 
 
 

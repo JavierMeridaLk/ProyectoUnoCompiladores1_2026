@@ -1,9 +1,9 @@
-package parser;
+package com.example.formularioapp.backen.java.parser;
 
 import java_cup.runtime.*;
 import java.util.*;
 import lexer.LexerPKM;
-import pruebasintacticocompi.pruebasproyecto1.ErroresDeAnalizadores;
+import com.example.formularioapp.backen.java.ErroresDeAnalizadores; 
 
 parser code {:
     LexerPKM lexer;
@@ -33,9 +33,10 @@ parser code {:
         }
 
         errores.add(new ErroresDeAnalizadores(
-            lex + " -> error sintáctico",
+            lex,
             "Sintáctico",
             "PKM",
+            "Error sintáctico",
             s.left,
             s.right
         ));
@@ -56,11 +57,12 @@ parser code {:
         }
 
         errores.add(new ErroresDeAnalizadores(
-            lex + " -> error sintáctico irrecuperable",
-            "Sintáctico",
-            "PKM",
-            s.left,
-            s.right
+            lex,                        // 🔥 SOLO EL LEXEMA
+            "Sintáctico",               // Tipo
+            "PKM",                      // Lenguaje
+            "Error sintáctico irrecuperable: estructura inválida en la entrada", // 🔥 DESCRIPCIÓN
+            s.left,                     // Línea
+            s.right                     // Columna
         ));
     }
 :};

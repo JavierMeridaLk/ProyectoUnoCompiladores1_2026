@@ -7,6 +7,7 @@ package lexer;
 import java_cup.runtime.*;
 import java.util.List;
 import java.util.ArrayList;
+import parser.sym;
 import parser.symPKM;
 import pruebasintacticocompi.pruebasproyecto1.ErroresDeAnalizadores; 
 
@@ -110,7 +111,7 @@ public class LexerPKM implements java_cup.runtime.Scanner {
   private static final String ZZ_ACTION_PACKED_0 =
     "\2\0\1\1\2\2\1\3\1\2\1\1\1\4\2\1"+
     "\1\5\1\6\1\7\1\10\16\11\1\12\1\13\1\1"+
-    "\1\14\1\15\1\0\3\2\3\0\1\5\1\16\1\0"+
+    "\1\14\1\15\1\1\3\2\3\0\1\5\1\16\1\0"+
     "\1\5\3\0\1\17\1\0\16\11\1\0\2\11\1\0"+
     "\5\11\1\0\4\11\4\0\1\20\1\2\3\0\1\5"+
     "\6\0\1\11\1\0\7\11\1\0\7\11\1\0\2\11"+
@@ -525,32 +526,32 @@ public class LexerPKM implements java_cup.runtime.Scanner {
 
   private static final String ZZ_ATTRIBUTE_PACKED_0 =
     "\2\0\2\11\1\1\1\11\2\1\1\11\4\1\2\11"+
-    "\16\1\2\11\2\1\1\11\1\0\3\1\3\0\1\1"+
-    "\1\11\1\0\1\1\3\0\1\11\1\0\16\1\1\0"+
-    "\2\1\1\0\5\1\1\0\4\1\4\0\2\1\3\0"+
-    "\1\1\6\0\1\1\1\0\7\1\1\0\7\1\1\0"+
-    "\2\1\1\0\6\1\1\0\4\1\5\0\1\1\11\0"+
-    "\1\1\1\0\2\1\1\0\4\1\1\0\2\1\2\0"+
-    "\3\1\1\0\4\1\1\0\1\1\1\11\2\1\1\0"+
-    "\2\1\1\0\4\1\1\11\4\1\5\0\1\1\4\0"+
-    "\1\11\4\0\1\1\1\0\2\1\1\0\4\1\1\0"+
-    "\2\1\2\0\2\1\1\0\1\1\1\11\1\1\1\0"+
-    "\1\1\2\0\1\1\1\0\1\1\1\0\5\1\2\0"+
-    "\1\11\4\0\1\1\10\0\1\1\1\0\2\1\1\0"+
-    "\3\1\1\0\1\1\1\0\1\1\1\0\2\1\2\11"+
-    "\1\1\1\0\1\1\2\0\1\1\1\0\1\1\1\0"+
-    "\2\1\1\0\1\1\2\0\1\11\3\0\1\1\1\0"+
-    "\1\11\4\0\1\11\1\1\1\0\1\11\1\1\1\0"+
-    "\2\1\1\11\1\1\1\0\1\1\1\0\2\1\1\0"+
-    "\1\1\2\0\1\1\1\0\1\1\1\11\1\1\2\0"+
-    "\1\1\3\0\1\11\1\0\1\1\1\0\1\1\1\0"+
-    "\1\1\1\0\1\1\1\0\1\1\1\0\1\1\1\0"+
-    "\2\1\1\0\1\1\1\0\1\1\2\0\1\1\1\11"+
-    "\1\0\1\1\1\11\1\1\1\0\1\1\1\0\1\1"+
-    "\1\0\1\1\1\0\1\1\1\0\1\1\1\0\1\1"+
-    "\3\0\1\11\1\1\1\11\1\1\1\0\1\1\1\0"+
-    "\1\1\2\11\1\1\2\11\2\0\1\1\1\0\1\1"+
-    "\3\0\1\11\1\1\3\0\1\11\14\0\2\11";
+    "\16\1\2\11\2\1\1\11\4\1\3\0\1\1\1\11"+
+    "\1\0\1\1\3\0\1\11\1\0\16\1\1\0\2\1"+
+    "\1\0\5\1\1\0\4\1\4\0\2\1\3\0\1\1"+
+    "\6\0\1\1\1\0\7\1\1\0\7\1\1\0\2\1"+
+    "\1\0\6\1\1\0\4\1\5\0\1\1\11\0\1\1"+
+    "\1\0\2\1\1\0\4\1\1\0\2\1\2\0\3\1"+
+    "\1\0\4\1\1\0\1\1\1\11\2\1\1\0\2\1"+
+    "\1\0\4\1\1\11\4\1\5\0\1\1\4\0\1\11"+
+    "\4\0\1\1\1\0\2\1\1\0\4\1\1\0\2\1"+
+    "\2\0\2\1\1\0\1\1\1\11\1\1\1\0\1\1"+
+    "\2\0\1\1\1\0\1\1\1\0\5\1\2\0\1\11"+
+    "\4\0\1\1\10\0\1\1\1\0\2\1\1\0\3\1"+
+    "\1\0\1\1\1\0\1\1\1\0\2\1\2\11\1\1"+
+    "\1\0\1\1\2\0\1\1\1\0\1\1\1\0\2\1"+
+    "\1\0\1\1\2\0\1\11\3\0\1\1\1\0\1\11"+
+    "\4\0\1\11\1\1\1\0\1\11\1\1\1\0\2\1"+
+    "\1\11\1\1\1\0\1\1\1\0\2\1\1\0\1\1"+
+    "\2\0\1\1\1\0\1\1\1\11\1\1\2\0\1\1"+
+    "\3\0\1\11\1\0\1\1\1\0\1\1\1\0\1\1"+
+    "\1\0\1\1\1\0\1\1\1\0\1\1\1\0\2\1"+
+    "\1\0\1\1\1\0\1\1\2\0\1\1\1\11\1\0"+
+    "\1\1\1\11\1\1\1\0\1\1\1\0\1\1\1\0"+
+    "\1\1\1\0\1\1\1\0\1\1\1\0\1\1\3\0"+
+    "\1\11\1\1\1\11\1\1\1\0\1\1\1\0\1\1"+
+    "\2\11\1\1\2\11\2\0\1\1\1\0\1\1\3\0"+
+    "\1\11\1\1\3\0\1\11\14\0\2\11";
 
   private static int [] zzUnpackAttribute() {
     int [] result = new int[402];
@@ -644,38 +645,17 @@ public class LexerPKM implements java_cup.runtime.Scanner {
         return new Symbol(tipo, yyline + 1, yycolumn + 1, valor);
     }
 
-    @Override
-    public void syntax_error(Symbol s){
-        String lex = (s.value != null) ? s.value.toString() : symbl_name_from_id(s.sym);
-
-        StringBuilder esperado = new StringBuilder();
-
-        try {
-            int[] esperados = expected_token_ids();
-
-            if (esperados != null) {
-                for (int id : esperados) {
-                    String name = symbl_name_from_id(id);
-                    if(!name.equals("error")){
-                        esperado.append(name).append(" ");
-                    }
-                }
-            } else {
-                esperado.append("No disponible");
-            }
-
-        } catch (Exception e) {
-            esperado.append("No disponible");
-        }
-
+    private void agregarError(String lexema) {
         errores.add(new ErroresDeAnalizadores(
-            lex + " -> se esperaba: " + esperado.toString(),
-            "Sintáctico",
+            lexema,
+            "Léxico",
             "PKM",
-            s.left,
-            s.right
+            "Token no válido",
+            yyline + 1,
+            yycolumn + 1
         ));
     }
+
 
 
   /**
@@ -1097,13 +1077,21 @@ public class LexerPKM implements java_cup.runtime.Scanner {
       if (zzInput == YYEOF && zzStartRead == zzCurrentPos) {
         zzAtEOF = true;
             zzDoEOF();
+            switch (zzLexicalState) {
+            case DENTRO_CADENA: {
+              agregarError("Cadena no cerrada");
+        return symbol(sym.EOF);
+            }  // fall though
+            case 403: break;
+            default:
           {     return new Symbol(symPKM.EOF, yyline + 1, yycolumn + 1, "EOF");
  }
+        }
       }
       else {
         switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
           case 1:
-            { errores.add(new ErroresDeAnalizadores("Error PKM", "Lexico", "Creación de Formulario", yyline, yycolumn));
+            { agregarError(yytext());
             }
           // fall through
           case 55: break;

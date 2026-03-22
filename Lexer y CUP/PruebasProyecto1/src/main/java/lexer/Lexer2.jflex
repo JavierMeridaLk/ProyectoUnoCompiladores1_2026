@@ -1,10 +1,10 @@
-package lexer;
+package com.example.formularioapp.backen.java.lexer;
 
 import java_cup.runtime.*;
 import java.util.List;
 import java.util.ArrayList;
 import parser.symPKM;
-import pruebasintacticocompi.pruebasproyecto1.ErroresDeAnalizadores; 
+import com.example.formularioapp.backen.java.ErroresDeAnalizadores; 
 
 %%
 %public
@@ -33,6 +33,17 @@ import pruebasintacticocompi.pruebasproyecto1.ErroresDeAnalizadores;
 
     private Symbol symbol(int tipo, Object valor) {
         return new Symbol(tipo, yyline + 1, yycolumn + 1, valor);
+    }
+
+    private void agregarError(String lexema) {
+        errores.add(new ErroresDeAnalizadores(
+            lexema,
+            "Léxico",
+            "PKM",
+            "Token no válido",
+            yyline + 1,
+            yycolumn + 1
+        ));
     }
 
 %}
@@ -129,9 +140,7 @@ CAT     = "@[:^^:]"
 
     [a-zA-Z_][a-zA-Z0-9_]* { return symbol(symPKM.IDENTIFICADOR, yytext()); }
 
-    . {
-        errores.add(new ErroresDeAnalizadores("Error PKM", "Lexico", "Creación de Formulario", yyline, yycolumn));
-    }
+    . { agregarError(yytext()); }
 }
 
 <DENTRO_CADENA> {
@@ -143,4 +152,16 @@ CAT     = "@[:^^:]"
     [^\"@]+ { return symbol(symPKM.TEXTO, yytext()); }
 
     "\"" { yybegin(YYINITIAL); return symbol(symPKM.COMILLA); }
+
+    \n {
+        agregarError("Cadena no cerrada");
+        yybegin(YYINITIAL);
+    }
+
+    <<EOF>> {
+        agregarError("Cadena no cerrada");
+        return symbol(sym.EOF);
+    }
+
+    . { agregarError(yytext()); }
 }

@@ -1,8 +1,8 @@
-package parser;
+package com.example.formularioapp.backen.java.parser;
 
 import java.util.*;
 import java_cup.runtime.*;
-import pruebasintacticocompi.pruebasproyecto1.ErroresDeAnalizadores;
+import com.example.formularioapp.backen.java.ErroresDeAnalizadores; 
 
 parser code {:
     private List<ErroresDeAnalizadores> errores = new ArrayList<>();
@@ -24,9 +24,10 @@ parser code {:
         }
 
         errores.add(new ErroresDeAnalizadores(
-            lex + " -> se esperaba: " + esperado.toString(),
+            lex,
             "Sintáctico",
-            "Creación de Formulario",
+            "Formulario",
+            "Se esperaba: " + esperado.toString(),
             s.left,
             s.right
         ));
@@ -34,7 +35,26 @@ parser code {:
 
     @Override
     public void unrecovered_syntax_error(Symbol s){
-        syntax_error(s);
+        String lex;
+
+        if (s.value != null) {
+            lex = s.value.toString();
+        } else {
+            try {
+                lex = symbl_name_from_id(s.sym);
+            } catch (Exception e) {
+                lex = "TOKEN_" + s.sym;
+            }
+        }
+
+        errores.add(new ErroresDeAnalizadores(
+            lex,                        // 🔥 SOLO EL LEXEMA
+            "Sintáctico",               // Tipo
+            "PKM",                      // Lenguaje
+            "Error sintáctico irrecuperable: estructura inválida en la entrada", // 🔥 DESCRIPCIÓN
+            s.left,                     // Línea
+            s.right                     // Columna
+        ));
     }
 :};
 

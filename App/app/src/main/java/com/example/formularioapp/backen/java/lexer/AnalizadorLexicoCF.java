@@ -6,7 +6,7 @@ package com.example.formularioapp.backen.java.lexer;
 
 import java_cup.runtime.Symbol;
 import java.util.List;
-import parser.sym;
+import com.example.formularioapp.backen.java.parser.sym;
 import java.util.ArrayList;
 import com.example.formularioapp.backen.java.ErroresDeAnalizadores; 
 

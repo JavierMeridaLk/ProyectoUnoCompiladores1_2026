@@ -7,7 +7,7 @@ package com.example.formularioapp.backen.java.parser;
 
 import java_cup.runtime.*;
 import java.util.*;
-import lexer.LexerPKM;
+import com.example.formularioapp.backen.java.lexer.LexerPKM;
 import com.example.formularioapp.backen.java.ErroresDeAnalizadores;
 import java_cup.runtime.XMLElement;
 

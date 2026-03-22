@@ -1,15 +1,19 @@
+package com.example.formularioapp.backen.java;
+
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package pruebasintacticocompi.pruebasproyecto1;
 
 /**
  *
  * @author xavi
  */
-public class ErroresDeAnalizadores {
-    
+
+import java.io.Serializable;
+
+public class ErroresDeAnalizadores implements Serializable {
+
     private String lexema;
     private String tipo;
     private String lenguaje;
@@ -49,5 +53,4 @@ public class ErroresDeAnalizadores {
     public int getColm() {
         return colm;
     }
-
 }
