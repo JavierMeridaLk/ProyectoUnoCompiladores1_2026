@@ -18,22 +18,21 @@ class ReportesActivity : AppCompatActivity() {
 
         val tabla = findViewById<TableLayout>(R.id.tableErrores)
 
-        val errores = intent.getSerializableExtra("listaErrores") as? ArrayList<ErroresDeAnalizadores> ?: arrayListOf()
+        val errores = intent.getSerializableExtra("listaErrores") as? List<ErroresDeAnalizadores> ?: emptyList()
 
         if (errores.isEmpty()) {
-            val row = TableRow(this)
-            val cell = TextView(this)
-
-            cell.text = "No se encontraron errores"
-            cell.setPadding(16, 16, 16, 16)
-            cell.setTextColor(Color.BLACK)
-
-            row.addView(cell)
-            tabla.addView(row)
-
+            Toast.makeText(this, "No se encontró ningún error", Toast.LENGTH_SHORT).show()
         } else {
-            for (error in errores) {
+            errores.forEachIndexed { index, error ->
+
                 val row = TableRow(this)
+
+                val colorFondo = if (index % 2 == 0)
+                    Color.parseColor("#F8FAFC")
+                else
+                    Color.WHITE
+
+                row.setBackgroundColor(colorFondo)
 
                 row.addView(createCell(error.getLexema()))
                 row.addView(createCell(error.getLine().toString()))
@@ -48,10 +47,10 @@ class ReportesActivity : AppCompatActivity() {
     }
 
     private fun createCell(text: String): TextView {
-        val tv = TextView(this)
-        tv.text = text
-        tv.setPadding(12, 12, 12, 12)
-        tv.setTextColor(Color.BLACK)
-        return tv
+        return TextView(this).apply {
+            this.text = text
+            setPadding(12, 12, 12, 12)
+            setTextColor(Color.BLACK)
+        }
     }
 }

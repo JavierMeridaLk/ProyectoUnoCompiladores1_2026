@@ -27,7 +27,6 @@
             android:textSize="16sp"
             android:textStyle="bold"
             android:layout_marginBottom="12dp"
-            android:elevation="6dp"
             app:cornerRadius="16dp"
             android:textColor="#FFFFFF"
             app:backgroundTint="#4A90E2"/>
@@ -83,7 +82,6 @@
                 android:textColor="#FFFFFF"
                 app:cornerRadius="12dp"
                 app:backgroundTint="#FDCB6E"/>
-
         </LinearLayout>
 
         <!-- EDITOR -->
@@ -96,6 +94,7 @@
             android:textSize="14sp"
             android:layout_marginBottom="6dp"/>
 
+        <!-- SCROLL -->
         <ScrollView
             android:id="@+id/scrollEditor"
             android:layout_width="match_parent"
@@ -103,7 +102,8 @@
             android:layout_weight="1"
             android:background="#1E1E1E"
             android:elevation="4dp"
-            android:layout_marginBottom="10dp">
+            android:layout_marginBottom="10dp"
+            android:fillViewport="true">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -111,24 +111,27 @@
                 android:orientation="horizontal"
                 android:padding="10dp">
 
+                <!-- NUMERACIÓN -->
                 <TextView
                     android:id="@+id/lineNumbers"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="1"
                     android:textColor="#B2BEC3"
-                    android:textSize="12sp"
-                    android:paddingEnd="10dp"
-                    android:lineSpacingExtra="2dp"/>
+                    android:textSize="14sp"
+                    android:fontFamily="monospace"
+                    android:lineSpacingExtra="2dp"
+                    android:paddingEnd="10dp"/>
 
+                <!-- EDITOR -->
                 <EditText
                     android:id="@+id/editor"
-                    android:hint="Escribe tu código aquí..."
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="top|start"
                     android:background="@android:color/transparent"
+                    android:hint="Escribe tu código aquí..."
                     android:textColor="#D4D4D4"
                     android:textColorHint="#888888"
                     android:textSize="14sp"
@@ -136,7 +139,6 @@
                     android:inputType="textMultiLine"
                     android:lineSpacingExtra="2dp"/>
             </LinearLayout>
-
         </ScrollView>
 
         <!-- PREVIEW -->

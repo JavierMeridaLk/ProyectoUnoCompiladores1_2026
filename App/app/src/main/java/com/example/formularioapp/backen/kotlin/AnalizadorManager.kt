@@ -9,11 +9,6 @@ import java.io.StringReader
 
 class AnalizadorManager {
 
-    /**
-     * Analiza el código recibido y devuelve un ResultadoAnalisis.
-     * @param codigo Texto ingresado en el editor
-     * @return ResultadoAnalisis con errores y resultado del parser
-     */
     fun analizarCodigo(codigo: String): ResultadoAnalisis {
         // Declarar todos los analizadores y parsers
         val lexerPKM: LexerPKM
@@ -57,11 +52,11 @@ class AnalizadorManager {
                 erroresTotales.addAll(parserCF.getErrores())
             }
 
-            // Retornar lista de errores y null como resultado (puedes ajustar si quieres el resultado del parser)
+            // Retornar lista de errores y null como resultado
             ResultadoAnalisis(errores = erroresTotales, resultado = null)
 
         } catch (e: Exception) {
-            // Captura de errores inesperados
+            // manejo de errores inesperados
             ResultadoAnalisis(
                 errores = listOf(
                     ErroresDeAnalizadores(

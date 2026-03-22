@@ -2,10 +2,8 @@ package com.example.formularioapp
 
 import android.app.Activity
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
+import android.text.*
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.button.MaterialButton
@@ -48,12 +46,9 @@ class MainActivity : AppCompatActivity() {
         btnGuardarPKM = findViewById(R.id.btnGuardarPKM)
 
         setupEditor()
-        setupScrollSync()
 
         btnGenerar.setOnClickListener {
-            val codigo = editor.text.toString()
-            val resultado = AnalizadorManager().analizarCodigo(codigo)
-
+            val resultado = AnalizadorManager().analizarCodigo(editor.text.toString())
             erroresGenerados = ArrayList(resultado.errores)
 
             Toast.makeText(
@@ -80,30 +75,34 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupEditor() {
+
         editor.addTextChangedListener(object : TextWatcher {
+
             override fun afterTextChanged(s: Editable?) {
                 if (isColoring) return
                 isColoring = true
 
                 val cursor = editor.selectionStart
+
                 s?.let { coloreado.aplicarColores(it) }
-                editor.setSelection(cursor)
+
+                editor.setSelection(cursor.coerceAtMost(editor.text.length))
 
                 updateLineNumbers()
 
                 isColoring = false
             }
+
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
 
-        updateLineNumbers()
-    }
-
-    private fun setupScrollSync() {
-        scrollEditor.viewTreeObserver.addOnScrollChangedListener {
-            lineNumbers.scrollTo(0, scrollEditor.scrollY)
+        // 🔥 SINCRONIZACIÓN REAL
+        editor.viewTreeObserver.addOnScrollChangedListener {
+            lineNumbers.scrollTo(0, editor.scrollY)
         }
+
+        updateLineNumbers()
     }
 
     private fun updateLineNumbers() {

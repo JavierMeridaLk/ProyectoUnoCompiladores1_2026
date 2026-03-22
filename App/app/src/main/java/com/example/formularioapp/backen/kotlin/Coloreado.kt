@@ -8,7 +8,7 @@ class Coloreado {
 
     fun aplicarColores(editable: Editable) {
 
-        // 🔥 LIMPIAR estilos anteriores
+        // limpar estilos anteriores
         val spans = editable.getSpans(0, editable.length, ForegroundColorSpan::class.java)
         for (span in spans) {
             editable.removeSpan(span)
