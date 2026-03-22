@@ -52,7 +52,7 @@
                         android:layout_height="wrap_content">
 
                         <!-- HEADER -->
-                        <TableRow android:background="#6366F1">
+                        <TableRow android:background="#374151">
 
                             <TextView
                                 android:text="Lexema"
