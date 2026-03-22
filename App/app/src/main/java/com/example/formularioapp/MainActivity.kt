@@ -6,28 +6,32 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.widget.EditText
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.button.MaterialButton
 import com.example.formularioapp.backen.java.ErroresDeAnalizadores
-import com.example.formularioapp.backen.kotlin.AnalizadorManager
-import com.example.formularioapp.backen.kotlin.ReportesActivity
+import com.example.formularioapp.backen.kotlin.*
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var editor: EditText
     private lateinit var lineNumbers: TextView
+    private lateinit var scrollEditor: ScrollView
+
     private lateinit var btnGenerar: MaterialButton
     private lateinit var btnSubir: MaterialButton
     private lateinit var btnReportes: MaterialButton
     private lateinit var btnGuardarForm: MaterialButton
     private lateinit var btnGuardarPKM: MaterialButton
+
     private val FILE_REQUEST_CODE = 1001
     private val CREATE_FILE_FORM = 2001
     private val CREATE_FILE_PKM = 2002
-    private var erroresGenerados: ArrayList<ErroresDeAnalizadores> = arrayListOf()
+
+    private var erroresGenerados = arrayListOf<ErroresDeAnalizadores>()
+
+    private val coloreado = Coloreado()
+    private var isColoring = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,6 +39,7 @@ class MainActivity : AppCompatActivity() {
 
         editor = findViewById(R.id.editor)
         lineNumbers = findViewById(R.id.lineNumbers)
+        scrollEditor = findViewById(R.id.scrollEditor)
 
         btnGenerar = findViewById(R.id.btnGenerar)
         btnSubir = findViewById(R.id.btnSubir)
@@ -43,38 +48,25 @@ class MainActivity : AppCompatActivity() {
         btnGuardarPKM = findViewById(R.id.btnGuardarPKM)
 
         setupEditor()
+        setupScrollSync()
 
-        // GENERAR
         btnGenerar.setOnClickListener {
             val codigo = editor.text.toString()
+            val resultado = AnalizadorManager().analizarCodigo(codigo)
 
-            try {
-                val analizadorManager = AnalizadorManager()
-                val resultadoAnalisis = analizadorManager.analizarCodigo(codigo)
+            erroresGenerados = ArrayList(resultado.errores)
 
-                erroresGenerados = ArrayList(resultadoAnalisis.errores ?: emptyList())
-
-                if (erroresGenerados.isEmpty()) {
-                    Toast.makeText(this, "No se encontró ningún error", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(this, "Se encontraron ${erroresGenerados.size} errores", Toast.LENGTH_SHORT).show()
-                }
-
-            } catch (e: Exception) {
-                Toast.makeText(this, "Error al analizar el código", Toast.LENGTH_LONG).show()
-                erroresGenerados.clear()
-            }
+            Toast.makeText(
+                this,
+                if (erroresGenerados.isEmpty()) "Sin errores"
+                else "${erroresGenerados.size} errores encontrados",
+                Toast.LENGTH_SHORT
+            ).show()
         }
 
-        // SUBIR ARCHIVO
-        btnSubir.setOnClickListener {
-            abrirSelectorDeArchivo()
-        }
-
-        // REPORTES
         btnReportes.setOnClickListener {
             if (erroresGenerados.isEmpty()) {
-                Toast.makeText(this, "No se encontró ningún error", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "No hay errores", Toast.LENGTH_SHORT).show()
             } else {
                 val intent = Intent(this, ReportesActivity::class.java)
                 intent.putExtra("listaErrores", erroresGenerados)
@@ -82,106 +74,77 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // GUARDAR FORM
-        btnGuardarForm.setOnClickListener {
-            guardarArchivo(".form", CREATE_FILE_FORM)
-        }
-
-        // GUARDAR PKM
-        btnGuardarPKM.setOnClickListener {
-            guardarArchivo(".pkm", CREATE_FILE_PKM)
-        }
+        btnSubir.setOnClickListener { abrirSelectorDeArchivo() }
+        btnGuardarForm.setOnClickListener { guardarArchivo(".form", CREATE_FILE_FORM) }
+        btnGuardarPKM.setOnClickListener { guardarArchivo(".pkm", CREATE_FILE_PKM) }
     }
-    //Editor
+
     private fun setupEditor() {
         editor.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) { updateLineNumbers() }
+            override fun afterTextChanged(s: Editable?) {
+                if (isColoring) return
+                isColoring = true
+
+                val cursor = editor.selectionStart
+                s?.let { coloreado.aplicarColores(it) }
+                editor.setSelection(cursor)
+
+                updateLineNumbers()
+
+                isColoring = false
+            }
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
+
         updateLineNumbers()
     }
 
+    private fun setupScrollSync() {
+        scrollEditor.viewTreeObserver.addOnScrollChangedListener {
+            lineNumbers.scrollTo(0, scrollEditor.scrollY)
+        }
+    }
+
     private fun updateLineNumbers() {
-        val lines = if (editor.text.isEmpty()) 1 else editor.text.toString().split("\n").size
+        val text = editor.text.toString()
+        val lines = if (text.isEmpty()) 1 else text.count { it == '\n' } + 1
         lineNumbers.text = (1..lines).joinToString("\n")
     }
 
-//Abrir archivos
     private fun abrirSelectorDeArchivo() {
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-            addCategory(Intent.CATEGORY_OPENABLE)
-            type = "*/*"
-        }
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+        intent.type = "*/*"
         startActivityForResult(intent, FILE_REQUEST_CODE)
     }
-//Guardar archivois
+
     private fun guardarArchivo(extension: String, requestCode: Int) {
-
-        val contenido = editor.text.toString()
-
-        if (contenido.isBlank()) {
-            Toast.makeText(this, "El editor está vacío", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val nombreSugerido = if (extension == ".form") {
-            "archivo.form"
-        } else {
-            "archivo.pkm"
-        }
-
-        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-            addCategory(Intent.CATEGORY_OPENABLE)
-            type = "*/*" // 🔥 IMPORTANTE: evita que fuerce .txt
-            putExtra(Intent.EXTRA_TITLE, nombreSugerido)
-        }
-
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
+        intent.type = "*/*"
+        intent.putExtra(Intent.EXTRA_TITLE, "archivo$extension")
         startActivityForResult(intent, requestCode)
     }
 
-//Resultados
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        // CARGAR ARCHIVO
-        if (requestCode == FILE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            val uri: Uri? = data?.data
+        val uri = data?.data ?: return
 
-            uri?.let {
-                val nombreArchivo = it.lastPathSegment ?: "archivo desconocido"
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
 
-                if (nombreArchivo.endsWith(".form") || nombreArchivo.endsWith(".pkm")) {
-                    val contenido = contentResolver.openInputStream(it)
-                        ?.bufferedReader()
-                        .use { reader -> reader?.readText() } ?: ""
-
+                FILE_REQUEST_CODE -> {
+                    val contenido = contentResolver.openInputStream(uri)
+                        ?.bufferedReader().use { it?.readText() } ?: ""
                     editor.setText(contenido)
-                    Toast.makeText(this, "Archivo cargado: $nombreArchivo", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(this, "Solo se permiten archivos .form o .pkm", Toast.LENGTH_SHORT).show()
                 }
-            }
-        }
 
-        // GUARDAR ARCHIVO
-        if ((requestCode == CREATE_FILE_FORM || requestCode == CREATE_FILE_PKM)
-            && resultCode == Activity.RESULT_OK) {
-
-            val uri: Uri? = data?.data
-
-            uri?.let {
-                try {
+                CREATE_FILE_FORM, CREATE_FILE_PKM -> {
                     val contenido = editor.text.toString()
-
-                    contentResolver.openOutputStream(it)?.use { outputStream ->
-                        outputStream.write(contenido.toByteArray())
+                    contentResolver.openOutputStream(uri)?.use {
+                        it.write(contenido.toByteArray())
                     }
-
-                    Toast.makeText(this, "Archivo guardado correctamente", Toast.LENGTH_SHORT).show()
-
-                } catch (e: Exception) {
-                    Toast.makeText(this, "Error al guardar el archivo", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Guardado", Toast.LENGTH_SHORT).show()
                 }
             }
         }
