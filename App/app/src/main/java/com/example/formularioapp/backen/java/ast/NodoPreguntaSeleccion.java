@@ -3,7 +3,6 @@ package com.example.formularioapp.backen.java.ast;
 import java.util.List;
 
 public class NodoPreguntaSeleccion extends NodoComponente {
-
     public String label;
     public List<String> opciones;
 
