@@ -11,13 +11,60 @@ parser code {:
     public List<ErroresDeAnalizadores> getErrores(){
         return errores;
     }
+    @Override
+    public void syntax_error(Symbol s){
+        String lex;
+
+        if (s.value != null) {
+            lex = s.value.toString();
+        } else {
+            try {
+                lex = symbl_name_from_id(s.sym);
+            } catch (Exception e) {
+                lex = "TOKEN_" + s.sym;
+            }
+        }
+
+        errores.add(new ErroresDeAnalizadores(
+            lex,
+            "Sintáctico",
+            "Creación de formulario",
+            "Error sintáctico",
+            s.left,
+            s.right
+        ));
+    }
+
+    @Override
+    public void unrecovered_syntax_error(Symbol s){
+        String lex;
+
+        if (s.value != null) {
+            lex = s.value.toString();
+        } else {
+            try {
+                lex = symbl_name_from_id(s.sym);
+            } catch (Exception e) {
+                lex = "TOKEN_" + s.sym;
+            }
+        }
+
+        errores.add(new ErroresDeAnalizadores(
+            lex,
+            "Sintáctico",
+            "Creación de formulario",
+            "Error sintáctico irrecuperable: estructura inválida en la entrada",
+            s.left,
+            s.right
+        ));
+    }
 :};
 
 /************* TERMINALES *************/
 terminal SECTION, TABLE, TEXT;
 terminal OPEN_QUESTION, DROP_QUESTION, SELECT_QUESTION, MULTIPLE_QUESTION;
 
-terminal WIDTH, HEIGHT, POINTX, POINTY, ORIENTATION, ELEMENTS, STYLES, LABEL, CONTENT;
+terminal WIDTH, HEIGHT, POINTX, POINTY, ORIENTATION, ELEMENTS, LABEL, CONTENT;
 terminal OPTIONS, CORRECT;
 
 terminal VERTICAL, HORIZONTAL;
@@ -29,6 +76,8 @@ terminal LLAVE_ABRE, LLAVE_CIERRA;
 terminal COMA, DOS_PUNTOS;
 
 terminal String TEXTO, IDENTIFICADOR;
+terminal Integer ENTERO;
+terminal Double DECIMAL;
 
 terminal MONO, SANS_SERIF, CURSIVE;
 terminal LINE, DOTTED, DOUBLE;
@@ -50,7 +99,8 @@ non terminal List<List<NodoComponente>> filas;
 non terminal List<NodoComponente> fila;
 non terminal List<NodoComponente> celdas;
 
-non terminal NodoEstilo estilo;
+non terminal NodoColor color;
+non terminal Number valor;
 
 /************* INICIO *************/
 start with programa;
@@ -78,9 +128,7 @@ componente ::=
     | TEXT CORCHETE_ABRE lista_atributos:atr CORCHETE_CIERRA
       {: 
          String contenido = (String) atr.get("content");
-         NodoEstilo estiloNodo = (NodoEstilo) atr.get("styles");
          NodoTexto nodo = new NodoTexto(contenido,0,0);
-         nodo.estilo = estiloNodo;
          RESULT = nodo;
       :}
 
@@ -101,17 +149,20 @@ lista_atributos ::= lista_atributos:l COMA atributo:a
 ;
 
 atributo ::= 
-      WIDTH DOS_PUNTOS IDENTIFICADOR
-      {: Map<String,Object> m = new HashMap<>(); m.put("width", $3); RESULT = m; :}
+      WIDTH DOS_PUNTOS valor:v
+      {: Map<String,Object> m = new HashMap<>(); m.put("width", v); RESULT = m; :}
 
-    | HEIGHT DOS_PUNTOS IDENTIFICADOR
-      {: Map<String,Object> m = new HashMap<>(); m.put("height", $3); RESULT = m; :}
+    | HEIGHT DOS_PUNTOS valor:v
+      {: Map<String,Object> m = new HashMap<>(); m.put("height", v); RESULT = m; :}
 
-    | LABEL DOS_PUNTOS TEXTO
-      {: Map<String,Object> m = new HashMap<>(); m.put("label", $3); RESULT = m; :}
+    | LABEL DOS_PUNTOS TEXTO:t
+      {: Map<String,Object> m = new HashMap<>(); m.put("label", t); RESULT = m; :}
 
-    | CONTENT DOS_PUNTOS TEXTO
-      {: Map<String,Object> m = new HashMap<>(); m.put("content", $3); RESULT = m; :}
+    | CONTENT DOS_PUNTOS TEXTO:t
+      {: Map<String,Object> m = new HashMap<>(); m.put("content", t); RESULT = m; :}
+
+    | IDENTIFICADOR:id1 DOS_PUNTOS IDENTIFICADOR:id2
+      {: Map<String,Object> m = new HashMap<>(); m.put("id", id2); RESULT = m; :}
 
     | ELEMENTS DOS_PUNTOS LLAVE_ABRE lista_componentes:l LLAVE_CIERRA
       {: Map<String,Object> m = new HashMap<>(); m.put("elements", l); RESULT = m; :}
@@ -119,19 +170,47 @@ atributo ::=
     | ELEMENTS DOS_PUNTOS LLAVE_ABRE filas:f LLAVE_CIERRA
       {: Map<String,Object> m = new HashMap<>(); m.put("elements", f); RESULT = m; :}
 
-    | STYLES DOS_PUNTOS LLAVE_ABRE lista_atributos:est LLAVE_CIERRA
-      {: Map<String,Object> m = new HashMap<>(); m.put("styles", new NodoEstilo(est,0,0)); RESULT = m; :}
+    | TEXTO DOS_PUNTOS MONO
+      {: Map<String,Object> m = new HashMap<>(); m.put("font","MONO"); RESULT = m; :}
 
-    | TEXTO DOS_PUNTOS MONO {: Map<String,Object> m = new HashMap<>(); m.put("font","MONO"); RESULT = m; :}
-    | TEXTO DOS_PUNTOS SANS_SERIF {: Map<String,Object> m = new HashMap<>(); m.put("font","SANS_SERIF"); RESULT = m; :}
-    | TEXTO DOS_PUNTOS CURSIVE {: Map<String,Object> m = new HashMap<>(); m.put("font","CURSIVE"); RESULT = m; :}
+    | TEXTO DOS_PUNTOS SANS_SERIF
+      {: Map<String,Object> m = new HashMap<>(); m.put("font","SANS_SERIF"); RESULT = m; :}
 
-    | TEXTO DOS_PUNTOS PARENTESIS_ABRE ENTERO COMA LINE COMA color:col PARENTESIS_CIERRA
-        {: Map<String,Object> m = new HashMap<>(); m.put("border","LINE"); m.put("thickness",$3); m.put("color",col); RESULT = m; :}
-    | TEXTO DOS_PUNTOS PARENTESIS_ABRE ENTERO COMA DOTTED COMA color:col PARENTESIS_CIERRA
-        {: Map<String,Object> m = new HashMap<>(); m.put("border","DOTTED"); m.put("thickness",$3); m.put("color",col); RESULT = m; :}
-    | TEXTO DOS_PUNTOS PARENTESIS_ABRE ENTERO COMA DOUBLE COMA color:col PARENTESIS_CIERRA
-        {: Map<String,Object> m = new HashMap<>(); m.put("border","DOUBLE"); m.put("thickness",$3); m.put("color",col); RESULT = m; :}
+    | TEXTO DOS_PUNTOS CURSIVE
+      {: Map<String,Object> m = new HashMap<>(); m.put("font","CURSIVE"); RESULT = m; :}
+
+    | TEXTO DOS_PUNTOS PARENTESIS_ABRE valor:v COMA LINE COMA color:c PARENTESIS_CIERRA
+      {: Map<String,Object> m = new HashMap<>(); m.put("border","LINE"); m.put("thickness", v); m.put("color", c); RESULT = m; :}
+
+    | TEXTO DOS_PUNTOS PARENTESIS_ABRE valor:v COMA DOTTED COMA color:c PARENTESIS_CIERRA
+      {: Map<String,Object> m = new HashMap<>(); m.put("border","DOTTED"); m.put("thickness", v); m.put("color", c); RESULT = m; :}
+
+    | TEXTO DOS_PUNTOS PARENTESIS_ABRE valor:v COMA DOUBLE COMA color:c PARENTESIS_CIERRA
+      {: Map<String,Object> m = new HashMap<>(); m.put("border","DOUBLE"); m.put("thickness", v); m.put("color", c); RESULT = m; :}
+
+    | ORIENTATION DOS_PUNTOS VERTICAL
+      {: Map<String,Object> m = new HashMap<>(); m.put("orientation","VERTICAL"); RESULT = m; :}
+
+    | ORIENTATION DOS_PUNTOS HORIZONTAL
+      {: Map<String,Object> m = new HashMap<>(); m.put("orientation","HORIZONTAL"); RESULT = m; :}
+
+    | POINTX DOS_PUNTOS valor:v
+      {: Map<String,Object> m = new HashMap<>(); m.put("pointX", v); RESULT = m; :}
+
+    | POINTY DOS_PUNTOS valor:v
+      {: Map<String,Object> m = new HashMap<>(); m.put("pointY", v); RESULT = m; :}
+
+    | OPTIONS DOS_PUNTOS CORCHETE_ABRE TEXTO:t CORCHETE_CIERRA
+      {: 
+         List<String> list = new ArrayList<>();
+         list.add(t);
+         Map<String,Object> m = new HashMap<>();
+         m.put("options", list);
+         RESULT = m;
+      :}
+
+    | CORRECT DOS_PUNTOS TEXTO:t
+      {: Map<String,Object> m = new HashMap<>(); m.put("correct", t.equals("true")); RESULT = m; :}
 ;
 
 /************* LISTA COMPONENTES *************/
@@ -162,11 +241,22 @@ pregunta ::=
       {: RESULT = new NodoPreguntaAbierta((String)atr.get("label"),0,0); :}
 
     | DROP_QUESTION CORCHETE_ABRE lista_atributos:atr CORCHETE_CIERRA
-      {: RESULT = new NodoPreguntaSeleccion((String)atr.get("label"), (List<String>)atr.get("options"),0,0); :}
+      {: RESULT = new NodoPreguntaSeleccion((String)atr.get("label"), (List<String>)atr.get("options"), (Boolean)atr.get("correct"),0,0); :}
 
     | SELECT_QUESTION CORCHETE_ABRE lista_atributos:atr CORCHETE_CIERRA
-      {: RESULT = new NodoPreguntaSeleccion((String)atr.get("label"), (List<String>)atr.get("options"),0,0); :}
+      {: RESULT = new NodoPreguntaSeleccion((String)atr.get("label"), (List<String>)atr.get("options"), (Boolean)atr.get("correct"),0,0); :}
 
     | MULTIPLE_QUESTION CORCHETE_ABRE lista_atributos:atr CORCHETE_CIERRA
-      {: RESULT = new NodoPreguntaSeleccion((String)atr.get("label"), (List<String>)atr.get("options"),0,0); :}
+      {: RESULT = new NodoPreguntaSeleccion((String)atr.get("label"), (List<String>)atr.get("options"), (Boolean)atr.get("correct"),0,0); :}
 ;
+
+/************* COLORES *************/
+color ::=
+      COLOR_RED | COLOR_BLUE | COLOR_GREEN | COLOR_PURPLE | COLOR_SKY
+    | COLOR_YELLOW | COLOR_BLACK | COLOR_WHITE
+    | COLOR_HEX | COLOR_RGB | COLOR_HSL
+;
+
+/************* VALORES *************/
+valor ::= ENTERO:e {: RESULT = e; :}
+       | DECIMAL:d {: RESULT = d; :};
