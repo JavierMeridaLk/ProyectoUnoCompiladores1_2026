@@ -42,7 +42,7 @@ import com.example.formularioapp.backen.java.ErroresDeAnalizadores;
     }
 %}
 
-//******** REGEX ********
+//******** Expresiones regulares ********
 DIGITO = [0-9]
 LETRA = [a-zA-Z]
 IDENTIFICADOR = {LETRA}({LETRA}|{DIGITO}|_)*
