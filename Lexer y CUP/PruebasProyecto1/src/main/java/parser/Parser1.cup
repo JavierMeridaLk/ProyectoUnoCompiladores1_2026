@@ -11,6 +11,7 @@ parser code {:
     public List<ErroresDeAnalizadores> getErrores(){
         return errores;
     }
+
     @Override
     public void syntax_error(Symbol s){
         String lex;
@@ -58,6 +59,12 @@ parser code {:
             s.right
         ));
     }
+
+    private Map<String,Object> map(String k, Object v){
+        Map<String,Object> m = new HashMap<>();
+        m.put(k,v);
+        return m;
+    }
 :};
 
 /************* TERMINALES *************/
@@ -79,15 +86,21 @@ terminal String TEXTO, IDENTIFICADOR;
 terminal Integer ENTERO;
 terminal Double DECIMAL;
 
-/************* OPERADORES *************/
+/************* ESTILOS *************/
+terminal MONO, SANS_SERIF, CURSIVE;
+terminal LINE, DOTTED, DOUBLE, STYLES;
+
+terminal COLOR_RED, COLOR_BLUE, COLOR_GREEN, COLOR_BLACK, COLOR_WHITE, COLOR_SKY, COLOR_PURPLE, COLOR_YELLOW, COLOR_HEX, COLOR_RGB, COLOR_HSL;
+
 terminal MAS, MENOS, POR, DIV, POT, MOD;
 terminal MAYOR, MENOR, MAYORIGUAL, MENORIGUAL, IGUAL, DIF;
 terminal AND, OR, NOT;
 
-terminal MONO, SANS_SERIF, CURSIVE;
-terminal LINE, DOTTED, DOUBLE;
-terminal COLOR_RED, COLOR_BLUE, COLOR_GREEN, COLOR_PURPLE, COLOR_SKY, COLOR_YELLOW, COLOR_BLACK, COLOR_WHITE;
-terminal COLOR_HEX, COLOR_RGB, COLOR_HSL;
+terminal WHO_IS_THAT_POKEMON;
+
+terminal NUMBER_T, STRING_T, IGUAL_ASIG; 
+
+terminal STYLE_COLOR, STYLE_BACKGROUND, STYLE_FONT, STYLE_SIZE, STYLE_BORDER;
 
 /************* NO TERMINALES *************/
 non terminal Nodo programa;
@@ -98,56 +111,107 @@ non terminal List<NodoComponente> lista_componentes;
 non terminal Map<String,Object> lista_atributos;
 non terminal Map<String,Object> atributo;
 
+non terminal Map<String,Object> styles;
+non terminal Map<String,Object> style;
+
 non terminal NodoComponente pregunta;
 
 non terminal List<List<NodoComponente>> filas;
 non terminal List<NodoComponente> fila;
 non terminal List<NodoComponente> celdas;
 
-non terminal NodoColor color;
 non terminal Number valor;
-
 non terminal List<String> lista_textos;
+non terminal List<Integer> lista_enteros;
+
+non terminal NodoColor color;
+non terminal String tipo_borde;
+non terminal NodoEstilo bloque_styles;
+
+non terminal Object valor_opciones;
+
+non terminal Object contenido_elementos;
+
+non terminal Object opciones_drop;
+
+non terminal Nodo elemento_global;
+non terminal Nodo declaracion;
 
 /************* INICIO *************/
 start with programa;
 
 /************* PROGRAMA *************/
 programa ::= lista:l 
-{: RESULT = new NodoPrograma(l,0,0); :}
+{: RESULT = new NodoPrograma(l, 0, 0); :}
 ;
 
 /************* LISTA *************/
-lista ::= lista:l componente:c 
-{: l.add(c); RESULT = l; :}
-       | componente:c 
-{: List<Nodo> l = new ArrayList<>(); l.add(c); RESULT = l; :}
+lista ::= lista:l elemento_global:eg
+    {: l.add(eg); RESULT = l; :}
+| elemento_global:eg
+    {: List<Nodo> l = new ArrayList<>(); l.add(eg); RESULT = l; :}
+;
+
+/************* ELEMENTO GLOBAL *************/
+elemento_global ::= 
+      componente:c  {: RESULT = c; :}
+    | declaracion:d {: RESULT = d; :}
+;
+
+/************* DECLARACION Y ASIGNACION CORREGIDA *************/
+
+declaracion ::= 
+
+      NUMBER_T:n IDENTIFICADOR:id IGUAL_ASIG valor:v
+        {: 
+            NodoIdentificador nodoId = new NodoIdentificador(id, idleft, idright);
+            NodoExpresion exp = new NodoLiteral(v, vleft, vright); 
+            RESULT = new NodoDeclaracion("number", nodoId, exp, nleft, nright); 
+        :}
+    | STRING_T:s IDENTIFICADOR:id IGUAL_ASIG TEXTO:t
+        {: 
+            NodoIdentificador nodoId = new NodoIdentificador(id, idleft, idright);
+            NodoExpresion exp = new NodoLiteral(t, tleft, tright);
+            RESULT = new NodoDeclaracion("string", nodoId, exp, sleft, sright); 
+        :}
+    | IDENTIFICADOR:id IGUAL_ASIG valor:v
+        {: 
+            NodoIdentificador nodoId = new NodoIdentificador(id, idleft, idright);
+            NodoExpresion exp = new NodoLiteral(v, vleft, vright);
+            RESULT = new NodoAsignacion(nodoId, exp, idleft, idright); 
+        :}
+    | IDENTIFICADOR:id IGUAL_ASIG TEXTO:t
+        {: 
+            NodoIdentificador nodoId = new NodoIdentificador(id, idleft, idright);
+            NodoExpresion exp = new NodoLiteral(t, tleft, tright);
+            RESULT = new NodoAsignacion(nodoId, exp, idleft, idright); 
+        :}
 ;
 
 /************* COMPONENTES *************/
 componente ::=
-      SECTION CORCHETE_ABRE lista_atributos:atr CORCHETE_CIERRA
-      {: 
-         List<NodoComponente> hijos = (List<NodoComponente>) atr.getOrDefault("__elements__", new ArrayList<>());
-          atr.remove("__elements__"); // 🔥 eliminarlo de atributos
+    SECTION CORCHETE_ABRE lista_atributos:atr CORCHETE_CIERRA
+    {: 
+        List<NodoComponente> hijos = (List<NodoComponente>) atr.getOrDefault("elements", new ArrayList<>());
+        RESULT = new NodoSeccion(atr, hijos,0,0);
+    :}
+| TEXT CORCHETE_ABRE lista_atributos:atr CORCHETE_CIERRA
+    {: RESULT = new NodoTexto(atr,0,0); :}
+| TABLE CORCHETE_ABRE lista_atributos:atr CORCHETE_CIERRA
+    {: RESULT = new NodoTabla(atr, (List<List<NodoComponente>>) atr.get("elements"),0,0); :}
+| pregunta:p 
+    {: RESULT = p; :}
+;
 
-          RESULT = new NodoSeccion(atr, hijos,0,0);
-      :}
-
-    | TEXT CORCHETE_ABRE lista_atributos:atr CORCHETE_CIERRA
-      {: 
-         String contenido = (String) atr.get("content");
-         NodoTexto nodo = new NodoTexto(atr,0,0);
-         RESULT = nodo;
-      :}
-
-    | pregunta:p {: RESULT = p; :}
-
-    | TABLE CORCHETE_ABRE lista_atributos:atr CORCHETE_CIERRA
-      {: 
-         List<List<NodoComponente>> f = (List<List<NodoComponente>>) atr.get("elements");
-         RESULT = new NodoTabla(atr, f,0,0);
-      :}
+/************* LISTA COMPONENTES *************/
+lista_componentes ::= lista_componentes:l COMA componente:c
+{: l.add(c); RESULT = l; :}
+| componente:c
+{: 
+    List<NodoComponente> l = new ArrayList<>();
+    l.add(c);
+    RESULT = l;
+:}
 ;
 
 /************* ATRIBUTOS *************/
@@ -157,81 +221,87 @@ lista_atributos ::= lista_atributos:l COMA atributo:a
 {: RESULT = a; :}
 ;
 
-atributo ::= 
-      WIDTH DOS_PUNTOS valor:v
-      {: Map<String,Object> m = new HashMap<>(); m.put("width", v); RESULT = m; :}
+atributo ::=
+    WIDTH DOS_PUNTOS valor:v {: RESULT = map("width", v); :}
+| HEIGHT DOS_PUNTOS valor:v {: RESULT = map("height", v); :}
+| POINTX DOS_PUNTOS valor:v {: RESULT = map("pointX", v); :}
+| POINTY DOS_PUNTOS valor:v {: RESULT = map("pointY", v); :}
+| LABEL DOS_PUNTOS TEXTO:t {: RESULT = map("label", t); :}
+| CONTENT DOS_PUNTOS TEXTO:t {: RESULT = map("content", t); :}
 
-    | HEIGHT DOS_PUNTOS valor:v
-      {: Map<String,Object> m = new HashMap<>(); m.put("height", v); RESULT = m; :}
+| ORIENTATION DOS_PUNTOS VERTICAL {: RESULT = map("orientation","VERTICAL"); :}
+| ORIENTATION DOS_PUNTOS HORIZONTAL {: RESULT = map("orientation","HORIZONTAL"); :}
 
-    | LABEL DOS_PUNTOS TEXTO:t
-      {: Map<String,Object> m = new HashMap<>(); m.put("label", t); RESULT = m; :}
+| ELEMENTS DOS_PUNTOS LLAVE_ABRE contenido_elementos:e LLAVE_CIERRA
+    {: RESULT = map("elements", e); :}
 
-    | CONTENT DOS_PUNTOS TEXTO:t
-      {: Map<String,Object> m = new HashMap<>(); m.put("content", t); RESULT = m; :}
+| OPTIONS DOS_PUNTOS valor_opciones:v
+    {: RESULT = map("options", v); :}
 
-    | IDENTIFICADOR:id1 DOS_PUNTOS IDENTIFICADOR:id2
-      {: Map<String,Object> m = new HashMap<>(); m.put("id", id2); RESULT = m; :}
+| CORRECT DOS_PUNTOS valor:v
+    {: RESULT = map("correct", v); :}
 
-    | ELEMENTS DOS_PUNTOS LLAVE_ABRE lista_componentes:l LLAVE_CIERRA
-      {: 
-          Map<String,Object> m = new HashMap<>();
-          m.put("__elements__", l); // 👈 clave interna temporal
-          RESULT = m; 
-      :}
+| CORRECT DOS_PUNTOS LLAVE_ABRE lista_enteros:l LLAVE_CIERRA
+    {: RESULT = map("correct", l); :}
 
-    | ELEMENTS DOS_PUNTOS LLAVE_ABRE filas:f LLAVE_CIERRA
-      {: Map<String,Object> m = new HashMap<>(); m.put("elements", f); RESULT = m; :}
-
-    | TEXTO DOS_PUNTOS MONO
-      {: Map<String,Object> m = new HashMap<>(); m.put("font","MONO"); RESULT = m; :}
-
-    | TEXTO DOS_PUNTOS SANS_SERIF
-      {: Map<String,Object> m = new HashMap<>(); m.put("font","SANS_SERIF"); RESULT = m; :}
-
-    | TEXTO DOS_PUNTOS CURSIVE
-      {: Map<String,Object> m = new HashMap<>(); m.put("font","CURSIVE"); RESULT = m; :}
-
-    | TEXTO DOS_PUNTOS PARENTESIS_ABRE valor:v COMA LINE COMA color:c PARENTESIS_CIERRA
-      {: Map<String,Object> m = new HashMap<>(); m.put("border","LINE"); m.put("thickness", v); m.put("color", c); RESULT = m; :}
-
-    | TEXTO DOS_PUNTOS PARENTESIS_ABRE valor:v COMA DOTTED COMA color:c PARENTESIS_CIERRA
-      {: Map<String,Object> m = new HashMap<>(); m.put("border","DOTTED"); m.put("thickness", v); m.put("color", c); RESULT = m; :}
-
-    | TEXTO DOS_PUNTOS PARENTESIS_ABRE valor:v COMA DOUBLE COMA color:c PARENTESIS_CIERRA
-      {: Map<String,Object> m = new HashMap<>(); m.put("border","DOUBLE"); m.put("thickness", v); m.put("color", c); RESULT = m; :}
-
-    | ORIENTATION DOS_PUNTOS VERTICAL
-      {: Map<String,Object> m = new HashMap<>(); m.put("orientation","VERTICAL"); RESULT = m; :}
-
-    | ORIENTATION DOS_PUNTOS HORIZONTAL
-      {: Map<String,Object> m = new HashMap<>(); m.put("orientation","HORIZONTAL"); RESULT = m; :}
-
-    | POINTX DOS_PUNTOS valor:v
-      {: Map<String,Object> m = new HashMap<>(); m.put("pointX", v); RESULT = m; :}
-
-    | POINTY DOS_PUNTOS valor:v
-      {: Map<String,Object> m = new HashMap<>(); m.put("pointY", v); RESULT = m; :}
-
-    | OPTIONS DOS_PUNTOS CORCHETE_ABRE lista_textos:l CORCHETE_CIERRA
-      {: 
-          Map<String,Object> m = new HashMap<>();
-          m.put("options", l);
-          RESULT = m;
-      :}
-
-    | CORRECT DOS_PUNTOS TEXTO:t
-      {: Map<String,Object> m = new HashMap<>(); m.put("correct", t.equals("true")); RESULT = m; :}
+| bloque_styles:bs
+    {: RESULT = map("styles", bs); :}
 ;
 
-/************* LISTA COMPONENTES *************/
-lista_componentes ::= lista_componentes:l COMA componente:c
-{: l.add(c); RESULT = l; :}
-| componente:c
-{: List<NodoComponente> l = new ArrayList<>(); l.add(c); RESULT = l; :}
+/************* CONTENIDO ELEMENTS *************/
+contenido_elementos ::=
+      lista_componentes:l {: RESULT = l; :}
+    | filas:f {: RESULT = f; :}
+    | {: RESULT = new ArrayList<>(); :}
 ;
 
-/************* TABLA *************/
+color ::=
+      COLOR_RED     {: RESULT = new NodoColor("RED"); :}
+    | COLOR_BLUE    {: RESULT = new NodoColor("BLUE"); :}
+    | COLOR_GREEN   {: RESULT = new NodoColor("GREEN"); :}
+    | COLOR_BLACK   {: RESULT = new NodoColor("BLACK"); :}
+    | COLOR_WHITE   {: RESULT = new NodoColor("WHITE"); :}
+    | COLOR_SKY     {: RESULT = new NodoColor("SKY"); :}
+    | COLOR_PURPLE  {: RESULT = new NodoColor("PURPLE"); :}
+    | COLOR_YELLOW  {: RESULT = new NodoColor("YELLOW"); :}
+    | COLOR_HEX:c   {: RESULT = new NodoColor((String)c); :}
+    | COLOR_RGB:c   {: RESULT = new NodoColor((String)c); :}
+    | COLOR_HSL:c   {: RESULT = new NodoColor((String)c); :}
+;
+
+tipo_borde ::=
+    LINE   {: RESULT = "LINE"; :}
+| DOTTED {: RESULT = "DOTTED"; :}
+| DOUBLE {: RESULT = "DOUBLE"; :}
+;
+
+styles ::= styles:s COMA style:st
+    {: s.putAll(st); RESULT = s; :}
+| style:st
+    {: RESULT = st; :}
+;
+
+style ::=
+    TEXTO:t DOS_PUNTOS color:c {: RESULT = map(t, c); :}
+| TEXTO:t DOS_PUNTOS MONO {: RESULT = map(t, "MONO"); :}
+| TEXTO:t DOS_PUNTOS SANS_SERIF {: RESULT = map(t, "SANS_SERIF"); :}
+| TEXTO:t DOS_PUNTOS CURSIVE {: RESULT = map(t, "CURSIVE"); :}
+| TEXTO:t DOS_PUNTOS valor:v {: RESULT = map(t, v); :}
+| TEXTO:t DOS_PUNTOS PARENTESIS_ABRE valor:v COMA tipo_borde:t2 COMA color:c PARENTESIS_CIERRA
+    {: 
+        Map<String,Object> m = new HashMap<>();
+        m.put("border", t2);
+        m.put("thickness", v);
+        m.put("color", c);
+        RESULT = map(t, m);
+    :}
+;
+
+bloque_styles ::=
+    STYLES CORCHETE_ABRE styles:s CORCHETE_CIERRA
+    {: RESULT = new NodoEstilo(s); :}
+;
+
 filas ::= filas:f COMA fila:r
 {: f.add(r); RESULT = f; :}
 | fila:r
@@ -246,46 +316,43 @@ celdas ::= celdas:c COMA componente:n
 {: List<NodoComponente> c = new ArrayList<>(); c.add(n); RESULT = c; :}
 ;
 
-/************* PREGUNTAS *************/
 pregunta ::=
-      OPEN_QUESTION CORCHETE_ABRE lista_atributos:atr CORCHETE_CIERRA
-      {: RESULT = new NodoPreguntaAbierta(atr,0,0); :}
-
-    | DROP_QUESTION CORCHETE_ABRE lista_atributos:atr CORCHETE_CIERRA
-      {: RESULT = new NodoPreguntaSeleccion(atr,0,0); :}
-
-    | SELECT_QUESTION CORCHETE_ABRE lista_atributos:atr CORCHETE_CIERRA
-    {: RESULT = new NodoPreguntaSeleccion(atr,0,0); :}
-
-    | MULTIPLE_QUESTION CORCHETE_ABRE lista_atributos:atr CORCHETE_CIERRA
-    {:RESULT = new NodoPreguntaSeleccion(atr,0,0);     :}
-    ;
-
-/************* COLORES *************/
-color ::=
-      COLOR_RED     {: RESULT = new NodoColor("RED"); :}
-    | COLOR_BLUE    {: RESULT = new NodoColor("BLUE"); :}
-    | COLOR_GREEN   {: RESULT = new NodoColor("GREEN"); :}
-    | COLOR_PURPLE  {: RESULT = new NodoColor("PURPLE"); :}
-    | COLOR_SKY     {: RESULT = new NodoColor("SKY"); :}
-    | COLOR_YELLOW  {: RESULT = new NodoColor("YELLOW"); :}
-    | COLOR_BLACK   {: RESULT = new NodoColor("BLACK"); :}
-    | COLOR_WHITE   {: RESULT = new NodoColor("WHITE"); :}
-    | COLOR_HEX:c     {: RESULT = new NodoColor((String)c); :}
-    | COLOR_RGB:c     {: RESULT = new NodoColor((String)c); :}
-    | COLOR_HSL:c     {: RESULT = new NodoColor((String)c); :}
+    OPEN_QUESTION CORCHETE_ABRE lista_atributos:atr CORCHETE_CIERRA
+    {: RESULT = new NodoPreguntaAbierta(atr,0,0); :}
+| DROP_QUESTION CORCHETE_ABRE lista_atributos:atr CORCHETE_CIERRA
+    {: RESULT = new NodoPreguntaSeleccion("DROP", atr,0,0); :}
+| SELECT_QUESTION CORCHETE_ABRE lista_atributos:atr CORCHETE_CIERRA
+    {: RESULT = new NodoPreguntaSeleccion("SELECT", atr,0,0); :}
+| MULTIPLE_QUESTION CORCHETE_ABRE lista_atributos:atr CORCHETE_CIERRA
+    {: RESULT = new NodoPreguntaSeleccion("MULTIPLE", atr,0,0); :}
 ;
 
-/************* VALORES *************/
 valor ::= ENTERO:e {: RESULT = e; :}
-       | DECIMAL:d {: RESULT = d; :};
+| DECIMAL:d {: RESULT = d; :}
+;
 
-lista_textos ::= lista_textos:l COMA TEXTO:t
-{: l.add(t); RESULT = l; :}
-| TEXTO:t
+lista_textos ::= TEXTO:t
 {: 
     List<String> l = new ArrayList<>();
     l.add(t);
     RESULT = l;
 :}
+| lista_textos:l COMA TEXTO:t
+{: 
+    l.add(t);
+    RESULT = l;
+:}
+;
+
+lista_enteros ::= lista_enteros:l COMA ENTERO:e
+{: l.add(e); RESULT = l; :}
+| ENTERO:e
+{: List<Integer> l = new ArrayList<>(); l.add(e); RESULT = l; :}
+;
+
+valor_opciones ::=
+    LLAVE_ABRE lista_textos:l LLAVE_CIERRA
+    {: RESULT = l; :}
+| WHO_IS_THAT_POKEMON PARENTESIS_ABRE ENTERO:inicio COMA ENTERO:fin PARENTESIS_CIERRA
+    {: RESULT = new NodoPokemonRango(inicio, fin); :}
 ;

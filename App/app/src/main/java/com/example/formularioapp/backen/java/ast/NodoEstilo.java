@@ -1,12 +1,12 @@
 package com.example.formularioapp.backen.java.ast;
 
+import java.util.HashMap;
 import java.util.Map;
 
-public class NodoEstilo extends Nodo {
-    public Map<String,Object> atributos;
+public class NodoEstilo {
+    public Map<String, Object> atributos;
 
-    public NodoEstilo(Map<String,Object> atributos, int linea, int columna) {
-        super(linea, columna);
-        this.atributos = atributos;
+    public NodoEstilo(Map<String, Object> atributos) {
+        this.atributos = atributos != null ? atributos : new HashMap<>();
     }
 }

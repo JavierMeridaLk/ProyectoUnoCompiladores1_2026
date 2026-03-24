@@ -84,6 +84,9 @@ COMENTARIO_BLOQUE = "/*"([^*]|\*+[^*/])*\*+"/"
 "content"           { return symbol(sym.CONTENT); }
 "options"           { return symbol(sym.OPTIONS); }
 "correct"           { return symbol(sym.CORRECT); }
+"styles"           { return symbol(sym.STYLES); }
+//******** POKE API ********
+"who_is_that_pokemon" { return symbol(sym.WHO_IS_THAT_POKEMON); }
 
 //******** ORIENTACIÓN ********
 "VERTICAL"          { return symbol(sym.VERTICAL); }
@@ -136,6 +139,10 @@ COMENTARIO_BLOQUE = "/*"([^*]|\*+[^*/])*\*+"/"
 "]"   { return symbol(sym.CORCHETE_CIERRA); }
 ","   { return symbol(sym.COMA); }
 ":"   { return symbol(sym.DOS_PUNTOS); }
+
+"number" { return symbol(sym.NUMBER_T); }
+"string" { return symbol(sym.STRING_T); }
+"="      { return symbol(sym.IGUAL_ASIG); }
 
 //******** CADENA ********
 \" { yybegin(DENTRO_CADENA); }

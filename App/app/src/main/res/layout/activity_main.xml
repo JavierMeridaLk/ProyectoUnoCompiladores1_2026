@@ -94,19 +94,41 @@
             android:textSize="14sp"
             android:layout_marginBottom="6dp"/>
 
+
+        <!-- SCROLL EDITOR -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="2"
+        android:layout_marginBottom="16dp">
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnColorPicker"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
             android:text="Seleccionar color"
             android:textAllCaps="false"
-            android:textSize="12sp"
             android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            app:backgroundTint="#374151"
+            app:cornerRadius="12dp" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnInsertarComponente"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            app:cornerRadius="12dp"
-            app:backgroundTint="#374151"/>
+            android:text="Insertar componente"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            app:backgroundTint="#374151"
+            app:cornerRadius="12dp" />
 
-        <!-- SCROLL EDITOR -->
+        </LinearLayout>
+
+
         <ScrollView
             android:id="@+id/scrollEditor"
             android:layout_width="match_parent"
@@ -160,15 +182,22 @@
             android:textColor="#2D3436"
             android:textSize="14sp"
             android:layout_marginBottom="6dp"/>
-
-        <FrameLayout
-            android:id="@+id/previewContainer"
+        <ScrollView
+            android:id="@+id/scrollPreview"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:background="#1E1E1E"
-            android:elevation="4dp"
-            android:padding="10dp"/>
+            android:fillViewport="true"
+            android:scrollbars="vertical">
+            <LinearLayout
+            android:id="@+id/previewContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#FFFFFF"
+            android:padding="16dp" />
+        </ScrollView>
+
 
         <!-- BOTÓN RESPONDER -->
         <com.google.android.material.button.MaterialButton

@@ -4,16 +4,17 @@ import java.util.List;
 import java.util.Map;
 
 public class NodoPreguntaSeleccion extends NodoComponente {
-
+    public String tipo;
     public String label;
-    public List<String> opciones;
-    public Boolean correct;
+    public Object opciones; // 🔥 Cambiado de List<String> a Object para soportar la API
+    public Object correct;
 
-    public NodoPreguntaSeleccion(Map<String, Object> atributos, int linea, int columna) {
+    public NodoPreguntaSeleccion(String tipo, Map<String, Object> atributos, int linea, int columna) {
         super(atributos, linea, columna);
-
+        this.tipo = tipo;
         this.label = (String) atributos.get("label");
-        this.opciones = (List<String>) atributos.get("options");
-        this.correct = (Boolean) atributos.get("correct");
+        // 🔥 Extraemos "options" del mapa de atributos
+        this.opciones = atributos.get("options");
+        this.correct = atributos.get("correct");
     }
 }
