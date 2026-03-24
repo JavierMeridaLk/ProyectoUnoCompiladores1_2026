@@ -8,96 +8,74 @@ package com.example.formularioapp.backen.java.parser;
 /** CUP generated class containing symbol constants. */
 public class sym {
   /* terminals */
-  public static final int HORIZONTAL = 30;
-  public static final int SELECT_QUESTION = 10;
-  public static final int IDENTIFICADOR = 80;
-  public static final int DIVISION = 50;
-  public static final int MENOR_IGUAL = 56;
-  public static final int POKEMON = 46;
-  public static final int PARENTESIS_ABRE = 63;
-  public static final int COLOR_WHITE = 44;
-  public static final int TABLE = 6;
-  public static final int COLOR_BLACK = 43;
-  public static final int PARENTESIS_CIERRA = 64;
-  public static final int COLOR_HEX = 81;
-  public static final int POTENCIA = 51;
-  public static final int EMOJI = 76;
-  public static final int MAYOR = 53;
-  public static final int COLOR_PURPLE = 40;
-  public static final int TEXTO = 75;
-  public static final int SANS_SERIF = 32;
-  public static final int DROP_QUESTION = 9;
-  public static final int DIFERENTE = 58;
-  public static final int ELEMENTS = 17;
-  public static final int DRAW = 45;
-  public static final int OPEN_QUESTION = 8;
-  public static final int DOUBLE = 36;
-  public static final int CORCHETE_ABRE = 67;
-  public static final int NUMBER_TYPE = 2;
-  public static final int NOT = 61;
-  public static final int TEXT = 7;
-  public static final int DOS_PUNTOS = 70;
-  public static final int WIDTH = 12;
-  public static final int PUNTO_COMA = 71;
-  public static final int STYLES = 18;
-  public static final int COMA = 69;
-  public static final int ENTERO = 78;
-  public static final int LLAVE_CIERRA = 66;
-  public static final int MODULO = 52;
-  public static final int CURSIVE = 33;
-  public static final int MONO = 31;
-  public static final int IGUAL = 57;
-  public static final int WHILE = 25;
-  public static final int DECIMAL = 79;
-  public static final int DO = 26;
-  public static final int FOR = 27;
-  public static final int INTERROGACION_ABIERTA = 77;
-  public static final int ORIENTATION = 16;
-  public static final int ELSE = 24;
-  public static final int MULTIPLE_QUESTION = 11;
-  public static final int MENOR = 54;
-  public static final int COLOR_RGB = 82;
-  public static final int LLAVE_ABRE = 65;
-  public static final int CORRECT = 22;
-  public static final int CONTENT = 20;
+  public static final int COLOR_HSL = 64;
+  public static final int POT = 37;
+  public static final int POR = 35;
+  public static final int WIDTH = 9;
+  public static final int PARENTESIS_CIERRA = 22;
+  public static final int ELEMENTS = 14;
+  public static final int ENTERO = 31;
+  public static final int OPEN_QUESTION = 5;
+  public static final int DOUBLE = 53;
+  public static final int MONO = 48;
+  public static final int DOS_PUNTOS = 28;
+  public static final int ORIENTATION = 13;
+  public static final int COLOR_SKY = 58;
+  public static final int MULTIPLE_QUESTION = 8;
+  public static final int POINTY = 12;
+  public static final int POINTX = 11;
+  public static final int NOT = 47;
+  public static final int AND = 45;
+  public static final int MENORIGUAL = 42;
+  public static final int HORIZONTAL = 20;
+  public static final int IDENTIFICADOR = 30;
+  public static final int IGUAL = 43;
+  public static final int DROP_QUESTION = 6;
+  public static final int OR = 46;
+  public static final int CORCHETE_CIERRA = 24;
+  public static final int COLOR_GREEN = 56;
+  public static final int DIV = 36;
+  public static final int CURSIVE = 50;
+  public static final int CORRECT = 18;
+  public static final int COLOR_BLACK = 60;
+  public static final int VERTICAL = 19;
+  public static final int COLOR_YELLOW = 59;
+  public static final int COLOR_HEX = 62;
+  public static final int MAYORIGUAL = 41;
   public static final int EOF = 0;
-  public static final int PUNTO = 72;
-  public static final int VERTICAL = 29;
-  public static final int SUMA = 47;
-  public static final int LINE = 34;
-  public static final int LABEL = 19;
-  public static final int IN = 28;
-  public static final int COMILLA = 74;
-  public static final int OR = 59;
+  public static final int DECIMAL = 32;
+  public static final int COLOR_RED = 54;
+  public static final int TABLE = 3;
   public static final int error = 1;
-  public static final int RESTA = 48;
-  public static final int IF = 23;
-  public static final int DOTTED = 35;
-  public static final int COLOR_SKY = 41;
-  public static final int SPECIAL_TYPE = 4;
-  public static final int MULTIPLICACION = 49;
-  public static final int COLOR_GREEN = 39;
-  public static final int RANGO = 73;
-  public static final int HEIGHT = 13;
-  public static final int ASIGNACION = 62;
-  public static final int COLOR_HSL = 83;
-  public static final int COLOR_RED = 37;
-  public static final int POINTY = 15;
-  public static final int OPTIONS = 21;
-  public static final int POINTX = 14;
-  public static final int AND = 60;
-  public static final int COLOR_BLUE = 38;
-  public static final int COLOR_YELLOW = 42;
-  public static final int CORCHETE_CIERRA = 68;
-  public static final int MAYOR_IGUAL = 55;
-  public static final int SECTION = 5;
-  public static final int STRING_TYPE = 3;
+  public static final int COMA = 27;
+  public static final int LINE = 51;
+  public static final int DIF = 44;
+  public static final int MENOS = 34;
+  public static final int MENOR = 40;
+  public static final int SELECT_QUESTION = 7;
+  public static final int COLOR_PURPLE = 57;
+  public static final int MOD = 38;
+  public static final int HEIGHT = 10;
+  public static final int COLOR_WHITE = 61;
+  public static final int LLAVE_ABRE = 25;
+  public static final int MAYOR = 39;
+  public static final int CORCHETE_ABRE = 23;
+  public static final int CONTENT = 16;
+  public static final int SANS_SERIF = 49;
+  public static final int COLOR_BLUE = 55;
+  public static final int LLAVE_CIERRA = 26;
+  public static final int COLOR_RGB = 63;
+  public static final int TEXT = 4;
+  public static final int TEXTO = 29;
+  public static final int SECTION = 2;
+  public static final int LABEL = 15;
+  public static final int PARENTESIS_ABRE = 21;
+  public static final int DOTTED = 52;
+  public static final int OPTIONS = 17;
+  public static final int MAS = 33;
   public static final String[] terminalNames = new String[] {
   "EOF",
   "error",
-  "NUMBER_TYPE",
-  "STRING_TYPE",
-  "SPECIAL_TYPE",
   "SECTION",
   "TABLE",
   "TEXT",
@@ -111,19 +89,39 @@ public class sym {
   "POINTY",
   "ORIENTATION",
   "ELEMENTS",
-  "STYLES",
   "LABEL",
   "CONTENT",
   "OPTIONS",
   "CORRECT",
-  "IF",
-  "ELSE",
-  "WHILE",
-  "DO",
-  "FOR",
-  "IN",
   "VERTICAL",
   "HORIZONTAL",
+  "PARENTESIS_ABRE",
+  "PARENTESIS_CIERRA",
+  "CORCHETE_ABRE",
+  "CORCHETE_CIERRA",
+  "LLAVE_ABRE",
+  "LLAVE_CIERRA",
+  "COMA",
+  "DOS_PUNTOS",
+  "TEXTO",
+  "IDENTIFICADOR",
+  "ENTERO",
+  "DECIMAL",
+  "MAS",
+  "MENOS",
+  "POR",
+  "DIV",
+  "POT",
+  "MOD",
+  "MAYOR",
+  "MENOR",
+  "MAYORIGUAL",
+  "MENORIGUAL",
+  "IGUAL",
+  "DIF",
+  "AND",
+  "OR",
+  "NOT",
   "MONO",
   "SANS_SERIF",
   "CURSIVE",
@@ -138,42 +136,6 @@ public class sym {
   "COLOR_YELLOW",
   "COLOR_BLACK",
   "COLOR_WHITE",
-  "DRAW",
-  "POKEMON",
-  "SUMA",
-  "RESTA",
-  "MULTIPLICACION",
-  "DIVISION",
-  "POTENCIA",
-  "MODULO",
-  "MAYOR",
-  "MENOR",
-  "MAYOR_IGUAL",
-  "MENOR_IGUAL",
-  "IGUAL",
-  "DIFERENTE",
-  "OR",
-  "AND",
-  "NOT",
-  "ASIGNACION",
-  "PARENTESIS_ABRE",
-  "PARENTESIS_CIERRA",
-  "LLAVE_ABRE",
-  "LLAVE_CIERRA",
-  "CORCHETE_ABRE",
-  "CORCHETE_CIERRA",
-  "COMA",
-  "DOS_PUNTOS",
-  "PUNTO_COMA",
-  "PUNTO",
-  "RANGO",
-  "COMILLA",
-  "TEXTO",
-  "EMOJI",
-  "INTERROGACION_ABIERTA",
-  "ENTERO",
-  "DECIMAL",
-  "IDENTIFICADOR",
   "COLOR_HEX",
   "COLOR_RGB",
   "COLOR_HSL"

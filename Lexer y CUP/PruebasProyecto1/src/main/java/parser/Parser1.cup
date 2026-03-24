@@ -79,6 +79,11 @@ terminal String TEXTO, IDENTIFICADOR;
 terminal Integer ENTERO;
 terminal Double DECIMAL;
 
+/************* OPERADORES *************/
+terminal MAS, MENOS, POR, DIV, POT, MOD;
+terminal MAYOR, MENOR, MAYORIGUAL, MENORIGUAL, IGUAL, DIF;
+terminal AND, OR, NOT;
+
 terminal MONO, SANS_SERIF, CURSIVE;
 terminal LINE, DOTTED, DOUBLE;
 terminal COLOR_RED, COLOR_BLUE, COLOR_GREEN, COLOR_PURPLE, COLOR_SKY, COLOR_YELLOW, COLOR_BLACK, COLOR_WHITE;
@@ -102,6 +107,8 @@ non terminal List<NodoComponente> celdas;
 non terminal NodoColor color;
 non terminal Number valor;
 
+non terminal List<String> lista_textos;
+
 /************* INICIO *************/
 start with programa;
 
@@ -121,14 +128,16 @@ lista ::= lista:l componente:c
 componente ::=
       SECTION CORCHETE_ABRE lista_atributos:atr CORCHETE_CIERRA
       {: 
-         List<NodoComponente> hijos = (List<NodoComponente>) atr.getOrDefault("elements", new ArrayList<>());
-         RESULT = new NodoSeccion(atr, hijos,0,0);
+         List<NodoComponente> hijos = (List<NodoComponente>) atr.getOrDefault("__elements__", new ArrayList<>());
+          atr.remove("__elements__"); // 🔥 eliminarlo de atributos
+
+          RESULT = new NodoSeccion(atr, hijos,0,0);
       :}
 
     | TEXT CORCHETE_ABRE lista_atributos:atr CORCHETE_CIERRA
       {: 
          String contenido = (String) atr.get("content");
-         NodoTexto nodo = new NodoTexto(contenido,0,0);
+         NodoTexto nodo = new NodoTexto(atr,0,0);
          RESULT = nodo;
       :}
 
@@ -137,7 +146,7 @@ componente ::=
     | TABLE CORCHETE_ABRE lista_atributos:atr CORCHETE_CIERRA
       {: 
          List<List<NodoComponente>> f = (List<List<NodoComponente>>) atr.get("elements");
-         RESULT = new NodoTabla(f,0,0);
+         RESULT = new NodoTabla(atr, f,0,0);
       :}
 ;
 
@@ -165,7 +174,11 @@ atributo ::=
       {: Map<String,Object> m = new HashMap<>(); m.put("id", id2); RESULT = m; :}
 
     | ELEMENTS DOS_PUNTOS LLAVE_ABRE lista_componentes:l LLAVE_CIERRA
-      {: Map<String,Object> m = new HashMap<>(); m.put("elements", l); RESULT = m; :}
+      {: 
+          Map<String,Object> m = new HashMap<>();
+          m.put("__elements__", l); // 👈 clave interna temporal
+          RESULT = m; 
+      :}
 
     | ELEMENTS DOS_PUNTOS LLAVE_ABRE filas:f LLAVE_CIERRA
       {: Map<String,Object> m = new HashMap<>(); m.put("elements", f); RESULT = m; :}
@@ -200,13 +213,11 @@ atributo ::=
     | POINTY DOS_PUNTOS valor:v
       {: Map<String,Object> m = new HashMap<>(); m.put("pointY", v); RESULT = m; :}
 
-    | OPTIONS DOS_PUNTOS CORCHETE_ABRE TEXTO:t CORCHETE_CIERRA
+    | OPTIONS DOS_PUNTOS CORCHETE_ABRE lista_textos:l CORCHETE_CIERRA
       {: 
-         List<String> list = new ArrayList<>();
-         list.add(t);
-         Map<String,Object> m = new HashMap<>();
-         m.put("options", list);
-         RESULT = m;
+          Map<String,Object> m = new HashMap<>();
+          m.put("options", l);
+          RESULT = m;
       :}
 
     | CORRECT DOS_PUNTOS TEXTO:t
@@ -238,25 +249,43 @@ celdas ::= celdas:c COMA componente:n
 /************* PREGUNTAS *************/
 pregunta ::=
       OPEN_QUESTION CORCHETE_ABRE lista_atributos:atr CORCHETE_CIERRA
-      {: RESULT = new NodoPreguntaAbierta((String)atr.get("label"),0,0); :}
+      {: RESULT = new NodoPreguntaAbierta(atr,0,0); :}
 
     | DROP_QUESTION CORCHETE_ABRE lista_atributos:atr CORCHETE_CIERRA
-      {: RESULT = new NodoPreguntaSeleccion((String)atr.get("label"), (List<String>)atr.get("options"), (Boolean)atr.get("correct"),0,0); :}
+      {: RESULT = new NodoPreguntaSeleccion(atr,0,0); :}
 
     | SELECT_QUESTION CORCHETE_ABRE lista_atributos:atr CORCHETE_CIERRA
-      {: RESULT = new NodoPreguntaSeleccion((String)atr.get("label"), (List<String>)atr.get("options"), (Boolean)atr.get("correct"),0,0); :}
+    {: RESULT = new NodoPreguntaSeleccion(atr,0,0); :}
 
     | MULTIPLE_QUESTION CORCHETE_ABRE lista_atributos:atr CORCHETE_CIERRA
-      {: RESULT = new NodoPreguntaSeleccion((String)atr.get("label"), (List<String>)atr.get("options"), (Boolean)atr.get("correct"),0,0); :}
-;
+    {:RESULT = new NodoPreguntaSeleccion(atr,0,0);     :}
+    ;
 
 /************* COLORES *************/
 color ::=
-      COLOR_RED | COLOR_BLUE | COLOR_GREEN | COLOR_PURPLE | COLOR_SKY
-    | COLOR_YELLOW | COLOR_BLACK | COLOR_WHITE
-    | COLOR_HEX | COLOR_RGB | COLOR_HSL
+      COLOR_RED     {: RESULT = new NodoColor("RED"); :}
+    | COLOR_BLUE    {: RESULT = new NodoColor("BLUE"); :}
+    | COLOR_GREEN   {: RESULT = new NodoColor("GREEN"); :}
+    | COLOR_PURPLE  {: RESULT = new NodoColor("PURPLE"); :}
+    | COLOR_SKY     {: RESULT = new NodoColor("SKY"); :}
+    | COLOR_YELLOW  {: RESULT = new NodoColor("YELLOW"); :}
+    | COLOR_BLACK   {: RESULT = new NodoColor("BLACK"); :}
+    | COLOR_WHITE   {: RESULT = new NodoColor("WHITE"); :}
+    | COLOR_HEX:c     {: RESULT = new NodoColor((String)c); :}
+    | COLOR_RGB:c     {: RESULT = new NodoColor((String)c); :}
+    | COLOR_HSL:c     {: RESULT = new NodoColor((String)c); :}
 ;
 
 /************* VALORES *************/
 valor ::= ENTERO:e {: RESULT = e; :}
        | DECIMAL:d {: RESULT = d; :};
+
+lista_textos ::= lista_textos:l COMA TEXTO:t
+{: l.add(t); RESULT = l; :}
+| TEXTO:t
+{: 
+    List<String> l = new ArrayList<>();
+    l.add(t);
+    RESULT = l;
+:}
+;

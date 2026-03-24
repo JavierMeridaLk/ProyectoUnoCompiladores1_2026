@@ -13,6 +13,9 @@ import com.skydoves.colorpickerview.ColorPickerDialog
 import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener
 import android.graphics.Color
 import android.app.AlertDialog
+import com.example.formularioapp.backen.java.ast.NodoComponente
+import android.widget.LinearLayout
+import android.widget.FrameLayout
 
 class MainActivity : AppCompatActivity() {
 
@@ -26,6 +29,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnGuardarForm: MaterialButton
     private lateinit var btnGuardarPKM: MaterialButton
     private lateinit var btnColorPicker: MaterialButton
+    private lateinit var previewContainer: FrameLayout
+
     private val FILE_REQUEST_CODE = 1001
     private val CREATE_FILE_FORM = 2001
     private val CREATE_FILE_PKM = 2002
@@ -34,6 +39,8 @@ class MainActivity : AppCompatActivity() {
 
     private val coloreado = Coloreado()
     private var isColoring = false
+    private val analizadorManager = AnalizadorManager()
+    private lateinit var formRenderer: FormRenderer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,22 +49,65 @@ class MainActivity : AppCompatActivity() {
         editor = findViewById(R.id.editor)
         lineNumbers = findViewById(R.id.lineNumbers)
         scrollEditor = findViewById(R.id.scrollEditor)
+        previewContainer = findViewById(R.id.previewContainer)
 
         btnGenerar = findViewById(R.id.btnGenerar)
         btnSubir = findViewById(R.id.btnSubir)
         btnReportes = findViewById(R.id.btnReportes)
         btnGuardarForm = findViewById(R.id.btnGuardarForm)
         btnGuardarPKM = findViewById(R.id.btnGuardarPKM)
+        btnColorPicker = findViewById(R.id.btnColorPicker)
+
+        formRenderer = FormRenderer(this)
 
         setupEditor()
 
+        // 🎨 Generar formulario
         btnGenerar.setOnClickListener {
+
             val resultado = AnalizadorManager().analizarCodigo(editor.text.toString())
             erroresGenerados = ArrayList(resultado.errores)
 
+            val ast = resultado.resultado
+
+            // 🔥 Generar texto del AST
+            val astTexto = imprimirAST(ast)
+
+            // 🔥 Mostrar en pantalla
+            mostrarASTDialog(astTexto)
+
+            // 🔥 LIMPIAR PREVIEW
+            val preview = findViewById<FrameLayout>(R.id.previewContainer)
+            preview.removeAllViews()
+
+            val contenedor = LinearLayout(this)
+            contenedor.orientation = LinearLayout.VERTICAL
+            preview.addView(contenedor)
+
+            val renderer = FormRenderer(this)
+
+            when (ast) {
+
+                is com.example.formularioapp.backen.java.ast.NodoPrograma -> {
+                    ast.instrucciones.forEach { nodo ->
+                        if (nodo is com.example.formularioapp.backen.java.ast.NodoComponente) {
+                            renderer.render(nodo, contenedor)
+                        }
+                    }
+                }
+
+                is com.example.formularioapp.backen.java.ast.NodoComponente -> {
+                    renderer.render(ast, contenedor)
+                }
+
+                else -> {
+                    Toast.makeText(this, "AST inválido", Toast.LENGTH_SHORT).show()
+                }
+            }
+
             Toast.makeText(
                 this,
-                if (erroresGenerados.isEmpty()) "Sin errores"
+                if (erroresGenerados.isEmpty()) "Formulario generado"
                 else "${erroresGenerados.size} errores encontrados",
                 Toast.LENGTH_SHORT
             ).show()
@@ -76,13 +126,11 @@ class MainActivity : AppCompatActivity() {
         btnSubir.setOnClickListener { abrirSelectorDeArchivo() }
         btnGuardarForm.setOnClickListener { guardarArchivo(".form", CREATE_FILE_FORM) }
         btnGuardarPKM.setOnClickListener { guardarArchivo(".pkm", CREATE_FILE_PKM) }
-        btnColorPicker = findViewById(R.id.btnColorPicker)
 
-        btnColorPicker.setOnClickListener {
-            abrirColorPicker()
-        }
+        btnColorPicker.setOnClickListener { abrirColorPicker() }
     }
 
+    // --- COLOR PICKER ---
     private fun abrirColorPicker() {
 
         ColorPickerDialog.Builder(this)
@@ -145,6 +193,7 @@ class MainActivity : AppCompatActivity() {
         editor.text.insert(start, texto)
     }
 
+    // --- EDITOR Y LINE NUMBERS ---
     private fun setupEditor() {
 
         editor.addTextChangedListener(object : TextWatcher {
@@ -168,7 +217,6 @@ class MainActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
 
-        // 🔥 SINCRONIZACIÓN REAL
         editor.viewTreeObserver.addOnScrollChangedListener {
             lineNumbers.scrollTo(0, editor.scrollY)
         }
@@ -182,6 +230,7 @@ class MainActivity : AppCompatActivity() {
         lineNumbers.text = (1..lines).joinToString("\n")
     }
 
+    // --- ARCHIVOS ---
     private fun abrirSelectorDeArchivo() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
         intent.type = "*/*"
@@ -193,6 +242,124 @@ class MainActivity : AppCompatActivity() {
         intent.type = "*/*"
         intent.putExtra(Intent.EXTRA_TITLE, "archivo$extension")
         startActivityForResult(intent, requestCode)
+    }
+    private fun imprimirAST(nodo: Any?, indent: String = ""): String {
+        if (nodo == null) return "${indent}null\n"
+
+        return when (nodo) {
+
+            is com.example.formularioapp.backen.java.ast.NodoPrograma -> {
+                var res = "${indent}NodoPrograma\n"
+                nodo.instrucciones.forEach {
+                    res += imprimirAST(it, indent + "  ")
+                }
+                res
+            }
+
+            is com.example.formularioapp.backen.java.ast.NodoSeccion -> {
+                var res = "${indent}NodoSeccion\n"
+
+                // 🔥 atributos
+                res += "${indent}  Atributos:\n"
+                nodo.atributos.forEach { (k, v) ->
+                    res += "${indent}    $k = ${formatearValor(v, indent + "    ")}\n"
+                }
+
+                // 🔥 hijos
+                res += "${indent}  Elementos:\n"
+                nodo.elementos.forEach {
+                    res += imprimirAST(it, indent + "    ")
+                }
+
+                res
+            }
+
+            is com.example.formularioapp.backen.java.ast.NodoTexto -> {
+                "${indent}NodoTexto: \"${nodo.contenido}\"\n"
+            }
+
+            is com.example.formularioapp.backen.java.ast.NodoPreguntaAbierta -> {
+                "${indent}PreguntaAbierta: ${nodo.label}\n"
+            }
+
+            is com.example.formularioapp.backen.java.ast.NodoPreguntaSeleccion -> {
+                val opciones = nodo.opciones?.joinToString(", ") ?: "null"
+                val correct = nodo.correct ?: false
+
+                "${indent}PreguntaSeleccion:\n" +
+                        "${indent}  label = ${nodo.label}\n" +
+                        "${indent}  opciones = [$opciones]\n" +
+                        "${indent}  correct = $correct\n"
+            }
+
+            is com.example.formularioapp.backen.java.ast.NodoTabla -> {
+                var res = "${indent}NodoTabla\n"
+
+                nodo.filas.forEachIndexed { i, fila ->
+                    res += "${indent}  Fila $i:\n"
+                    fila.forEach {
+                        res += imprimirAST(it, indent + "    ")
+                    }
+                }
+
+                res
+            }
+
+            is com.example.formularioapp.backen.java.ast.NodoColor -> {
+                "${indent}Color: ${nodo.valor}\n"
+            }
+
+            is com.example.formularioapp.backen.java.ast.NodoEstilo -> {
+                var res = "${indent}Estilo:\n"
+                nodo.atributos.forEach { (k, v) ->
+                    res += "${indent}  $k = ${formatearValor(v, indent + "  ")}\n"
+                }
+                res
+            }
+
+            else -> "${indent}${nodo::class.java.simpleName}\n"
+        }
+    }
+    private fun mostrarASTDialog(astTexto: String) {
+
+        val scroll = ScrollView(this)
+
+        val textView = TextView(this)
+        textView.text = astTexto
+        textView.setPadding(20, 20, 20, 20)
+        textView.textSize = 14f
+
+        scroll.addView(textView)
+
+        AlertDialog.Builder(this)
+            .setTitle("AST GENERADO")
+            .setView(scroll)
+            .setPositiveButton("OK", null)
+            .show()
+    }
+
+    private fun formatearValor(valor: Any?, indent: String): String {
+        return when (valor) {
+
+            is Map<*, *> -> {
+                var res = "\n"
+                valor.forEach { (k, v) ->
+                    res += "$indent$k = ${formatearValor(v, indent + "  ")}\n"
+                }
+                res
+            }
+
+            is List<*> -> {
+                var res = "[\n"
+                valor.forEach {
+                    res += "$indent${formatearValor(it, indent + "  ")}\n"
+                }
+                res += "$indent]"
+                res
+            }
+
+            else -> valor?.toString() ?: "null"
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

@@ -8,7 +8,7 @@ public class NodoSeccion extends NodoComponente {
     public List<NodoComponente> elementos;
 
     public NodoSeccion(Map<String,Object> atributos, List<NodoComponente> elementos, int linea, int columna) {
-        super(linea, columna);
+        super(atributos, linea, columna);
         this.atributos = atributos;
         this.elementos = elementos;
     }
