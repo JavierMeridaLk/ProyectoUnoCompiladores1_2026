@@ -553,7 +553,7 @@ class CUP$parser$actions {
           return CUP$parser$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 10: // componente ::= SECTION CORCHETE_ABRE lista_atributos CORCHETE_CIERRA 
+          case 10:
             {
               NodoComponente RESULT =null;
 		int atrleft = ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-1)).left;
