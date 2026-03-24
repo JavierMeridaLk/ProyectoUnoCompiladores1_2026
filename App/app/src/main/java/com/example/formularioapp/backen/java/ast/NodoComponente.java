@@ -9,6 +9,6 @@ public class NodoComponente extends Nodo {
     public NodoComponente(Map<String,Object> atributos, int linea, int columna) {
         super(linea, columna);
         this.atributos = atributos;
-        this.estilo = new NodoEstilo(atributos); // 🔥 CLAVE
+        this.estilo = new NodoEstilo(atributos);
     }
 }

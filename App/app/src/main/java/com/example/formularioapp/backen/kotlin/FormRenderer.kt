@@ -42,7 +42,7 @@ class FormRenderer(private val context: Context) {
                 contenedor.addView(tv)
             }
 
-            // --- 1. OPEN_QUESTION: Siempre es un campo de texto (Sin PokéAPI) ---
+            // OPEN_QUESTION
             is NodoPreguntaAbierta -> {
                 val block = crearBloqueVertical()
                 val label = TextView(context).apply {
@@ -69,7 +69,7 @@ class FormRenderer(private val context: Context) {
                 contenedor.addView(block)
             }
 
-            // --- 2. PREGUNTAS DE SELECCIÓN (Aquí se usa la PokéAPI solo si es DROP) ---
+            // PREGUNTAS DE SELECCIÓN
             is NodoPreguntaSeleccion -> {
                 val block = crearBloqueVertical()
                 val label = TextView(context).apply {
@@ -81,7 +81,7 @@ class FormRenderer(private val context: Context) {
                 val tipoSeleccion = nodo.tipo?.toString()?.uppercase() ?: "RADIO"
                 val opcionesRaw = nodo.opciones
 
-                // VALIDACIÓN CRÍTICA: PokéAPI solo si es DROP y tiene rango
+                // Validacion de la pokeapi
                 if (tipoSeleccion == "DROP" && opcionesRaw is NodoPokemonRango) {
                     val tvLoading = TextView(context).apply {
                         text = "Cargando Pokédex..."
@@ -103,7 +103,7 @@ class FormRenderer(private val context: Context) {
                         }
                     }
                 } else {
-                    // Si no es PokéAPI, procesar como lista de strings normal
+                    //lista de strings normal
                     val listaOpciones = when (opcionesRaw) {
                         is List<*> -> opcionesRaw.filterIsInstance<String>()
                         else -> emptyList()
@@ -114,7 +114,7 @@ class FormRenderer(private val context: Context) {
                 aplicarRectangulo(block, nodo.atributos, forzarWrap = true)
                 contenedor.addView(block)
             }
-
+            //TABLE
             is NodoTabla -> {
                 val table = TableLayout(context).apply {
                     isStretchAllColumns = true

@@ -6,7 +6,7 @@ public class NodoPokemonRango extends Nodo {
     public int fin;
 
     public NodoPokemonRango(int inicio, int fin) {
-        super(0,0); // o tus coordenadas si usas
+        super(0,0);
         this.inicio = inicio;
         this.fin = fin;
     }
