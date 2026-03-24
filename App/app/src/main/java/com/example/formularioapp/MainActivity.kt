@@ -76,12 +76,12 @@ class MainActivity : AppCompatActivity() {
         btnSubir.setOnClickListener { abrirSelectorDeArchivo() }
         btnGuardarForm.setOnClickListener { guardarArchivo(".form", CREATE_FILE_FORM) }
         btnGuardarPKM.setOnClickListener { guardarArchivo(".pkm", CREATE_FILE_PKM) }
-        btnColorPicker.setOnClickListener { abrirColorPicker() }
-        val test = TextView(this)
-        test.text = "PRUEBA DIRECTA DESDE ONCREATE"
-        test.textSize = 20f
+        btnColorPicker = findViewById(R.id.btnColorPicker)
 
-        previewContainer.addView(test)
+        btnColorPicker.setOnClickListener {
+            abrirColorPicker()
+        }
+
     }
 
     // 🚀 GENERAR FORMULARIO
@@ -103,10 +103,6 @@ class MainActivity : AppCompatActivity() {
         contenedor.orientation = LinearLayout.VERTICAL
         previewContainer.addView(contenedor)
 
-        val test = TextView(this)
-        test.text = "TEST PREVIEW"
-        contenedor.addView(test)
-
         // 🔥 Renderizar TODO el AST directamente
         if (ast is Nodo) {
             formRenderer.render(ast, contenedor)
@@ -123,18 +119,61 @@ class MainActivity : AppCompatActivity() {
     }
 
     // 🎨 COLOR PICKER
+
     private fun abrirColorPicker() {
+
         ColorPickerDialog.Builder(this)
             .setTitle("Selecciona un color")
+            .setPreferenceName("ColorPicker")
             .setPositiveButton("Seleccionar",
                 ColorEnvelopeListener { envelope, _ ->
 
                     val color = envelope.color
                     val hex = "#%06X".format(0xFFFFFF and color)
 
-                    insertarEnEditor(hex)
+                    val r = Color.red(color)
+                    val g = Color.green(color)
+                    val b = Color.blue(color)
+
+                    val hsl = FloatArray(3)
+                    Color.RGBToHSV(r, g, b, hsl)
+
+                    val h = hsl[0].toInt()
+                    val s = (hsl[1] * 100).toInt()
+                    val l = (hsl[2] * 100).toInt()
+
+                    mostrarOpcionesColor(hex, r, g, b, h, s, l)
                 })
-            .setNegativeButton("Cancelar") { d, _ -> d.dismiss() }
+            .setNegativeButton("Cancelar") { dialogInterface, _ ->
+                dialogInterface.dismiss()
+            }
+            .show()
+    }
+
+    private fun mostrarOpcionesColor(
+        hex: String,
+        r: Int, g: Int, b: Int,
+        h: Int, s: Int, l: Int
+    ) {
+
+        val opciones = arrayOf(
+            "HEX: $hex",
+            "RGB: ($r,$g,$b)",
+            "HSL: <$h,$s,$l>"
+        )
+
+        AlertDialog.Builder(this)
+            .setTitle("Selecciona formato")
+            .setItems(opciones) { _, which ->
+
+                val textoInsertar = when (which) {
+                    0 -> hex
+                    1 -> "($r,$g,$b)"
+                    else -> "<$h,$s,$l>"
+                }
+
+                insertarEnEditor(textoInsertar)
+            }
             .show()
     }
 

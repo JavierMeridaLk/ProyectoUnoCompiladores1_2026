@@ -110,7 +110,8 @@
         <ScrollView
             android:id="@+id/scrollEditor"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:background="#1E1E1E"
             android:elevation="4dp"
             android:layout_marginBottom="10dp"
@@ -163,7 +164,8 @@
         <FrameLayout
             android:id="@+id/previewContainer"
             android:layout_width="match_parent"
-            android:layout_height="250dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:background="#1E1E1E"
             android:elevation="4dp"
             android:padding="10dp"/>
